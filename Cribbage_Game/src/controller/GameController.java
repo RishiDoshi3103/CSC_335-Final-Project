@@ -1,5 +1,11 @@
 package controller;
 
+import Player.Player;
+import model.Card;
+import model.Game;
+import model.Rank;
+import ui.TextViewer;
+
 /**
  * 
  *  Score Reference
@@ -9,7 +15,7 @@ package controller;
  *  switches off each round.
  *  
  *  Pre-Play:
- *   - If the start card is a Jack, the dealer gets............................1 point
+ *   - If the start card is a Jack, the dealer gets............................2 point
  *   
  *  During Play: 
  *   - If one player says "go", the other player gets..........................1 point
@@ -45,5 +51,52 @@ package controller;
 
 
 public class GameController {
-
+	private Game model;
+	private TextViewer view;
+	
+	public GameController(Game model, TextViewer view) {
+		this.model = model;
+		this.view = view;
+	}
+	
+	public void startGame() {
+		while (!model.gameOver()) {
+			model.startRound();
+			System.out.println("--- Starting Round ---");
+			
+			promptDiscard(model.getPlayer1());
+			promptDiscard(model.getPlayer2());
+			
+			view.showCrib(model.showCrib());
+			
+			//view.showHand(model.getPlayer1());
+			//view.showHand(model.getPlayer2());
+			
+			System.out.println("--- Starter Card ---");
+			starterCard();
+		}
+	}
+	
+	private void promptDiscard(Player player) {
+		for (int i=0; i < 2; i++) {
+			view.showHand(player);
+			int choice = view.discard(player);
+			Card card = model.cribCard(player.discard(choice - 1));
+			System.out.println(player.getName() + " added " + card + " to crib.");
+		}
+	}
+	
+	private void starterCard() {
+		Card starter = model.drawStarter();
+		System.out.println("Starter Card: " + starter.toString());
+		if (starter.getRank().equals(Rank.JACK)) {
+			System.out.println("Dealer: " + model.getDealer().getName() + ", +2 points.");
+			System.out.println(model.getDealer().getName() + " total: " + model.getDealer().getScore());
+		}
+	}
+	
+	private void playPhase() {
+		
+	}
+	
 }

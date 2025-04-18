@@ -1,5 +1,7 @@
 package Player;
 
+import java.util.ArrayList;
+
 import model.Card;
 import model.Hand;
 
@@ -12,7 +14,8 @@ public abstract class Player {
     protected String name;
     protected int wins;
     protected int losses;
-    protected Hand hand;  // The player's current set of cards
+    protected int score;
+    protected ArrayList<Card> hand;  // The player's current set of cards
 
     /**
      * Constructs a new Player with the specified name.
@@ -23,7 +26,8 @@ public abstract class Player {
         this.name = name;
         this.wins = 0;
         this.losses = 0;
-        this.hand = new Hand();
+        this.score = 0;
+        this.hand = new ArrayList<Card>();
     }
 
     /**
@@ -40,7 +44,7 @@ public abstract class Player {
      *
      * @return the Hand object representing the player's cards
      */
-    public Hand getHand() {
+    public ArrayList<Card> getHand() {
         return hand;
     }
 
@@ -50,14 +54,41 @@ public abstract class Player {
      * @param card the Card to add
      */
     public void addCard(Card card) {
-        hand.addCard(card);
+        hand.add(card);
     }
-
+    
+    /**
+     * Removes a card from player's hand.
+     * 
+     * @param  index
+     * @return discarded card
+     */
+    public Card discard(int index) {
+    	return hand.remove(index);
+    }
+    
+    /**
+     * Adds points to score.
+     * 
+     * @param points
+     */
+    public void addPoints(int points) {
+    	score += points;
+    }
+    
+    /**
+     * Returns player's score 
+     * 
+     * @return score
+     */
+    public int getScore() {
+    	return score;
+    }
     /**
      * Clears all cards from the player's hand.
      */
     public void clearHand() {
-        hand.getCards().clear();
+        hand.clear();
     }
 
     /**
