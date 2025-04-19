@@ -16,6 +16,7 @@ public abstract class Player {
     protected int losses;
     protected int score;
     protected ArrayList<Card> hand;  // The player's current set of cards
+    protected ArrayList<Card> playedCards;
 
     /**
      * Constructs a new Player with the specified name.
@@ -28,6 +29,7 @@ public abstract class Player {
         this.losses = 0;
         this.score = 0;
         this.hand = new ArrayList<Card>();
+        this.playedCards = new ArrayList<Card>();
     }
 
     /**
@@ -47,7 +49,14 @@ public abstract class Player {
     public ArrayList<Card> getHand() {
         return hand;
     }
+    
+    public void addToPlayed(Card card) {
+    	this.playedCards.add(card);
+    }
 
+    public ArrayList<Card> getPlayed() {
+    	return playedCards;
+    }
     /**
      * Adds a card to the player's hand.
      *
@@ -59,6 +68,8 @@ public abstract class Player {
     
     /**
      * Removes a card from player's hand.
+     * Also used to 'play' a card, during
+     * play phase.
      * 
      * @param  index
      * @return discarded card
@@ -84,11 +95,17 @@ public abstract class Player {
     public int getScore() {
     	return score;
     }
+    
+   
     /**
      * Clears all cards from the player's hand.
      */
     public void clearHand() {
         hand.clear();
+    }
+    
+    public void clearPlayed() {
+    	playedCards.clear();
     }
 
     /**

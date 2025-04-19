@@ -57,6 +57,7 @@ public class Card {
 		}
 		return rank+symbol;
 	}
+}
 	/**
     private String suit;
     private String rank;
@@ -132,4 +133,4 @@ public class Card {
         return rank + " of " + suit;
     }
     */
-}
+

@@ -74,6 +74,12 @@ public class GameController {
 			
 			System.out.println("--- Starter Card ---");
 			starterCard();
+			
+			System.out.println("--- Play Phase ---");
+			playPhase();
+			
+			System.out.println(model.getPlayer1().getName() + " Score: " + model.getPlayer1().getScore());
+			System.out.println(model.getPlayer2().getName() + " Score: " + model.getPlayer2().getScore());
 		}
 	}
 	
@@ -96,7 +102,100 @@ public class GameController {
 	}
 	
 	private void playPhase() {
-		
+		    Player activeTurn;
+		    Player opponent;
+		    Player lastPlayerToPlay = null;
+		    
+		    // Determine who starts the turn based on who is the dealer
+		    if (model.getDealer() == model.getPlayer1()) {
+		        activeTurn = model.getPlayer2();
+		        opponent = model.getPlayer1();
+		    } else {
+		        activeTurn = model.getPlayer1();
+		        opponent = model.getPlayer2();
+		    }
+		    
+		    while (!(model.getPlayer1().getHand().isEmpty() && model.getPlayer2().getHand().isEmpty())) {
+		    	// Check if both players can't play (Go-Go situation)
+		    	if (!model.handCheck(activeTurn) && !model.handCheck(opponent)) {
+		    	    if (lastPlayerToPlay != null) {
+		    	        System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
+		    	        lastPlayerToPlay.addPoints(1);
+		    	    }
+		    	    model.resetTotal();
+		    	    model.resetSequence();
+		    	    continue;
+		    	} else if (model.handCheck(activeTurn)) {
+		    		view.showHand(activeTurn);
+		    		view.showPlayTotal(model.pointTotal());
+		    		int choice = view.playCard(activeTurn, model.pointTotal());
+		    		Card card = activeTurn.discard(choice - 1);
+		    		model.addToTotal(card.getRank().getValue());
+		    		model.addToSequence(card); // Sequence Scoring
+		    		activeTurn.addToPlayed(card); // Hand scoring at end
+		    		lastPlayerToPlay = activeTurn;
+		    		
+		    		System.out.println(activeTurn.getName() + " plays " + card + " | Total: " + model.pointTotal());
+		    		
+		    		int pairScore = model.checkPairs();
+		    		if (pairScore > 0) {
+		    			System.out.println(activeTurn.getName() + " scored " + pairScore + " from pairs!");
+		    			activeTurn.addPoints(pairScore);
+		    		}
+		    		int runScore = model.checkRuns();
+		    		if (runScore > 0) {
+		    			System.out.println(activeTurn.getName() + " scored " + runScore + " from a run!");
+		    			activeTurn.addPoints(runScore);
+		    		}
+		    		
+		    		if (model.pointTotal() == 15) {
+		    			System.out.println("15! " + activeTurn.getName() + " gets 1 point.");
+		    		}
+		    		
+		    		if (model.pointTotal() == 31) {
+		    			System.out.println("31 Reached! " + activeTurn.getName() + " gets 2 points.");
+		    			activeTurn.addPoints(2);
+		    			model.resetTotal();
+		    			model.resetSequence();
+		    		}
+		    	} else {
+		    		if (!activeTurn.getHand().isEmpty()) {
+		    			System.out.println(activeTurn.getName() + " Says Go..");
+		    			if (!model.handCheck(opponent) && !opponent.getHand().isEmpty()) {
+		    				System.out.println(opponent.getName() + " pegs 1 for Go");
+		    				opponent.addPoints(1);
+		    				model.resetTotal();
+		    				model.resetSequence();
+		    			}
+		    		}
+		    	}
+		    	
+		    	Player swap = activeTurn;
+		    	activeTurn = opponent;
+		    	opponent = swap;
+		    }
+		    
+		    if (model.pointTotal() != 0 && model.pointTotal() < 31 && lastPlayerToPlay != null) {
+		    	System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
+		    	lastPlayerToPlay.addPoints(1);
+		    }
+		    
+		    int score1 = model.scoreHand(activeTurn, false);
+		    if (score1 > 0) {
+		    	System.out.println(activeTurn.getName() + " scored " + score1 + " from show!");
+		    	activeTurn.addPoints(score1);
+		    }
+		    int score2 = model.scoreHand(opponent, false);
+		    if (score2 > 0) {
+		    	System.out.println(opponent.getName() + " scored " + score2 + " from show!");
+		    	opponent.addPoints(score2);
+		    }
+		    int scoreCrib = model.scoreHand(model.getDealer(), true);
+		    if (scoreCrib > 0) {
+		    	System.out.println("(Dealer) " + model.getDealer().getName() + " scored " + scoreCrib + " from show!");
+		    	model.getDealer().addPoints(scoreCrib);
+		    }
 	}
-	
 }
+		   
+

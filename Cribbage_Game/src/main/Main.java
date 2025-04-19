@@ -9,7 +9,6 @@ public class Main {
 		Game model = new Game("Player1", "Player2");
 		TextViewer view = new TextViewer();
 		GameController controller = new GameController(model, view);
-		
 		controller.startGame();
 	}
 }
