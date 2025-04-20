@@ -1,53 +1,52 @@
 package Player;
 
+import model.Card;
 import strategy.DiscardStrategy;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+
 /**
- * The ComputerPlayer class represents an AI-controlled player.
- * It extends the abstract Player class and uses a DiscardStrategy to decide which cards to discard.
- * This class can be used for different levels of AI by changing its discard strategy.
+ * Computer player that uses strategies to discard and play.
  */
 public class ComputerPlayer extends Player {
-    private DiscardStrategy discardStrategy;
+    private final List<DiscardStrategy> strategies;
+    private final Random random = new Random();
 
-    /**
-     * Constructs a new ComputerPlayer with the specified name and discard strategy.
-     *
-     * @param name the name of the computer player
-     * @param discardStrategy the strategy to use for selecting discards
-     */
-    public ComputerPlayer(String name, DiscardStrategy discardStrategy) {
-        super(name);
-        this.discardStrategy = discardStrategy;
-    }
-
-    /**
-     * Simulates the computer player's turn.
-     * In a full implementation, this method would include AI logic to make game decisions.
-     */
-    @Override
-    public void playTurn() {
-        System.out.println(name + " (Computer) is taking its turn.");
-        // Implement computer-specific turn logic here.
-    }
-
-    /**
-     * Uses the assigned discard strategy to select cards to discard from the computer player's hand.
-     */
-    @Override
-    public void discardCards() {
-        System.out.println(name + " (Computer) is discarding cards using its strategy.");
-        if (discardStrategy != null) {
-            discardStrategy.selectDiscard(hand);
+    public ComputerPlayer(String name, List<DiscardStrategy> strategies) {
+        super(Objects.requireNonNull(name));
+        if (strategies == null || strategies.isEmpty()) {
+            throw new IllegalArgumentException("Must provide at least one strategy.");
         }
+        this.strategies = List.copyOf(strategies);
     }
 
-    /**
-     * Sets a new discard strategy for the computer player.
-     *
-     * @param discardStrategy the new DiscardStrategy to use
-     */
-    public void setDiscardStrategy(DiscardStrategy discardStrategy) {
-        this.discardStrategy = discardStrategy;
+    @Override
+    public List<Card> discardToCrib(DiscardStrategy ignored) {
+        // Randomly select a discard strategy each time
+        DiscardStrategy strategy = strategies.get(random.nextInt(strategies.size()));
+        List<Card> toDiscard = strategy.selectDiscard(getHand());
+        toDiscard.forEach(getHand()::remove);
+        return toDiscard;
+    }
+
+    @Override
+    public Card playCard(int runningCount) {
+        for (Card c : getHand().getCards()) {
+            int sum = c.getCribValue() + runningCount;
+            if (sum == 15 || sum == 31) {
+                getHand().remove(c);
+                return c;
+            }
+        }
+        return getHand().getCards().stream()
+                .filter(c -> c.getCribValue() + runningCount <= 31)
+                .min((a, b) -> Integer.compare(a.getCribValue(), b.getCribValue()))
+                .map(c -> {
+                    getHand().remove(c);
+                    return c;
+                })
+                .orElse(null);
     }
 }

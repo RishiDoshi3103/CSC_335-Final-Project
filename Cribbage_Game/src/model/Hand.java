@@ -1,37 +1,30 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-/**
- * The Hand class represents a collection of cards held by a player.
- * It provides methods for adding, removing, and retrieving cards.
- */
 public class Hand {
-    private List<Card> cards;
+    private final List<Card> cards = new ArrayList<>();
+    private static final int MAX = 6;
 
-    /**
-     * Constructs an empty hand.
-     */
-    public Hand() {
-        cards = new ArrayList<>();
-    }
-
-    /**
-     * Adds a card to the hand.
-     *
-     * @param card the Card to add
-     */
-    public void addCard(Card card) {
+    public void add(Card card) {
+        Objects.requireNonNull(card);
+        if (cards.size() >= MAX) throw new IllegalStateException("Hand full");
         cards.add(card);
     }
 
-    /**
-     * Returns the list of cards in the hand.
-     *
-     * @return a List of Card objects
-     */
+    public boolean remove(Card card) {
+        Objects.requireNonNull(card);
+        return cards.remove(card);
+    }
+
     public List<Card> getCards() {
-        return cards;
+        return Collections.unmodifiableList(new ArrayList<>(cards));
+    }
+
+    public void clear() {
+        cards.clear();
     }
 }

@@ -1,81 +1,54 @@
 package model;
 
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Objects;
+
 /**
- * The Card class represents a playing card with a rank and a suit.
- * It provides methods to access its properties and compute values needed for Cribbage scoring.
+ * Flyweight Card: only 52 instances ever created.
  */
-public class Card {
-    private String suit;
-    private String rank;
-
-    /**
-     * Constructs a new Card with the specified rank and suit.
-     *
-     * @param rank the rank of the card (e.g., "A", "2", ..., "K")
-     * @param suit the suit of the card (e.g., "Hearts", "Spades")
-     */
-    public Card(String rank, String suit) {
-        this.rank = rank;
-        this.suit = suit;
+public final class Card {
+    public enum Suit  { HEARTS, DIAMONDS, CLUBS, SPADES }
+    public enum Rank {
+        A(1), TWO(2), THREE(3), FOUR(4), FIVE(5), SIX(6), SEVEN(7),
+        EIGHT(8), NINE(9), TEN(10), J(10), Q(10), K(10);
+        private final int value;
+        Rank(int v) { value = v; }
+        public int getValue() { return value; }
     }
 
-    /**
-     * Returns the rank of the card.
-     *
-     * @return the rank as a String
-     */
-    public String getRank() {
-        return rank;
-    }
-
-    /**
-     * Returns the suit of the card.
-     *
-     * @return the suit as a String
-     */
-    public String getSuit() {
-        return suit;
-    }
-
-    /**
-     * Returns the cribbage value of the card.
-     * For cribbage, Ace is 1; cards 2–10 are their face value; face cards count as 10.
-     *
-     * @return the cribbage value of the card
-     */
-    public int getCribbageValue() {
-        switch(rank) {
-            case "A": return 1;
-            case "J":
-            case "Q":
-            case "K": return 10;
-            default: return Integer.parseInt(rank);
+    private static final Map<Suit, Map<Rank, Card>> POOL = new EnumMap<>(Suit.class);
+    static {
+        for (Suit s : Suit.values()) {
+            Map<Rank, Card> m = new EnumMap<>(Rank.class);
+            for (Rank r : Rank.values()) {
+                m.put(r, new Card(r, s));
+            }
+            POOL.put(s, m);
         }
     }
 
-    /**
-     * Returns the numeric rank value for evaluating runs.
-     * Ace is 1; 2–10 are their face values; Jack is 11; Queen is 12; King is 13.
-     *
-     * @return the numeric rank value
-     */
-    public int getRankValue() {
-        switch(rank) {
-            case "A": return 1;
-            case "J": return 11;
-            case "Q": return 12;
-            case "K": return 13;
-            default: return Integer.parseInt(rank);
-        }
+    private final Rank rank;
+    private final Suit suit;
+    private Card(Rank rank, Suit suit) {
+        this.rank = Objects.requireNonNull(rank);
+        this.suit = Objects.requireNonNull(suit);
     }
 
-    /**
-     * Returns a string representation of the card.
-     *
-     * @return a string in the format "rank of suit"
-     */
-    @Override
-    public String toString() {
-        return rank + " of " + suit;
+    public static Card of(Rank rank, Suit suit) {
+        return POOL.get(suit).get(rank);
+    }
+    public Rank getRank()      { return rank; }
+    public Suit getSuit()      { return suit; }
+    public int  getCribValue() { return rank.getValue(); }
+
+    @Override public String toString() {
+        return rank + "_of_" + suit;
+    }
+    @Override public boolean equals(Object o) {
+        return this == o;
+    }
+    @Override public int hashCode() {
+        return System.identityHashCode(this);
     }
 }
