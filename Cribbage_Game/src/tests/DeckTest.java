@@ -14,7 +14,7 @@ import model.Suit;
 class DeckTest {
 	
 	@Test
-	void DeckTest() {
+	void deckTest() {
 		Deck deck = new Deck();
 		assertEquals(deck.size(), 52);
 		
@@ -22,6 +22,24 @@ class DeckTest {
 		
 		hand.add(deck.draw());
 		assertEquals(hand.get(0), Card.get(Suit.HEARTS, Rank.ACE));
+		assertEquals(deck.size(), 51);
+		
+		for (int i=0; i < 51; i++) {
+			assertNotEquals(deck.draw(), Card.get(Suit.HEARTS, Rank.ACE));
+		}
+	}
+	
+	@Test
+	void shuffleDeckTest() {
+		Deck deck = new Deck();
+		assertEquals(deck.size(), 52);
+		deck.shuffle();
+		ArrayList<Card> hand = new ArrayList<Card>();
+		
+		hand.add(deck.draw());
+		// Will MOST LIKELY pass, rare moment if it doesn't.
+		// Compare to above.
+		assertNotEquals(hand.get(0), Card.get(Suit.HEARTS, Rank.ACE));
 		assertEquals(deck.size(), 51);
 	}
 

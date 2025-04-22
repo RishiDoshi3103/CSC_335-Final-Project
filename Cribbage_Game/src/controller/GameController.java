@@ -54,11 +54,42 @@ public class GameController {
 	private Game model;
 	private TextViewer view;
 	
+	/** 
+	 * Each instance of the game requires a Game model - which contains
+	 * game state, which the controller acts on. It also accepts a viewer
+	 * that should primarily focus on communicating and accepting input
+	 * from the user.
+	 * 
+	 * @param model Game Object
+	 * @param view  Requisite Viewer
+	 */
 	public GameController(Game model, TextViewer view) {
 		this.model = model;
 		this.view = view;
 	}
 	
+	/**
+	 * This function represents the main game loop. 
+	 * - It starts with a loop that checks if either player in the Game 
+	 * has a score at or over 61, and ends if either meets this condition.
+	 * 
+	 * - It then begins the 'Rounds' as Game.startRound() switches dealers,
+	 * clears player's hands/played cards, clears the crib, resets the sequence 
+	 * stack (and associated stack point total), sets a new and shuffled deck, 
+	 * and deals 6 cards to each player.
+	 * 
+	 * - It prompts each player to then discard two cards via the promptDiscard
+	 * function. The chosen cards are immediately added to the Game crib.
+	 * 
+	 * - A starter card is then drawn and assigned from the deck.
+	 * 
+	 * - Then the game plays out through the playPhase(), allowing players to
+	 * play cards, before doing a final round of scoring. 
+	 * 
+	 * Note: Any print lines and TextViewer calls should be replaced by GUI,
+	 * or increased-complexity viewer. These are meant to show game states
+	 * via a text based viewer as a rough draft, and testing purposes.
+	 */
 	public void startGame() {
 		while (!model.gameOver()) {
 			model.startRound();
@@ -68,9 +99,6 @@ public class GameController {
 			promptDiscard(model.getPlayer2());
 			
 			view.showCrib(model.showCrib());
-			
-			//view.showHand(model.getPlayer1());
-			//view.showHand(model.getPlayer2());
 			
 			System.out.println("--- Starter Card ---");
 			starterCard();
@@ -83,6 +111,12 @@ public class GameController {
 		}
 	}
 	
+	/**
+	 * This function prompts a player, through the viewer, to discard two cards
+	 * based on index representation of the cards in their hand.
+	 * 
+	 * @param player Desired player to discard
+	 */
 	private void promptDiscard(Player player) {
 		for (int i=0; i < 2; i++) {
 			view.showHand(player);
@@ -92,6 +126,11 @@ public class GameController {
 		}
 	}
 	
+	/**
+	 * This basic function draws and assigns a starter card. If it is a jack, the
+	 * Game.drawStarter() function automatically gives the current dealer 2 points.
+	 * Viewer should reflect this.
+	 */
 	private void starterCard() {
 		Card starter = model.drawStarter();
 		System.out.println("Starter Card: " + starter.toString());
@@ -101,6 +140,39 @@ public class GameController {
 		}
 	}
 	
+	/**
+	 * This complicated function represents the core card play loop.
+	 * - It begins by determining who the dealer is through the Game
+	 * state, setting who should take the first turn. Then, while each
+	 * player has cards to play, it runs:
+	 * - It checks if either player can actually play any cards in
+	 * their hand that wont cause the play stack to go over 31 points.
+	 * - If neither can play, it allocates 1 point to the player that
+	 * played the last card, before reseting the play stack points
+	 * and sequence (for determining viable runs).
+	 * - If the active turn player can play, it displays their hand
+	 * via the viewer and the play stack point total.
+	 * - It prompts the user to choose a card in their hand to play,
+	 * assigning that specific card to add it to the sequence, and its' 
+	 * rank value to the play stack point total. It also adds that card
+	 * to the players played cards, and sets the player as the last player
+	 * to play a card.
+	 * - It then runs a quick active point check for pairs or runs in the
+	 * sequence through the Game state functions checkPairs() and checkRuns().
+	 * - If either return an integer value, it adds those 'peg' points to the 
+	 * active turn player's points and displays them through the viewer.
+	 * - It also checks if the play stack point total reaches 15, or 31 (proceeds
+	 * to reset the play stack and stack points in this case).
+	 * - If the active player cannot play a card, but has cards still in their
+	 * hand, it checks the opponents hand.
+	 * - If the opponent cannot play, but also has cards in their hand, it 
+	 * triggers a 'Go', point allocation, and reset.
+	 * - The end of the loop switches the active turn to the opponent, when
+	 * appropriate.
+	 * - Finally, it does a last played check, and runs the score allocations
+	 * for the show / crib.
+	 * 
+	 */
 	private void playPhase() {
 		    Player activeTurn;
 		    Player opponent;
@@ -195,6 +267,52 @@ public class GameController {
 		    	System.out.println("(Dealer) " + model.getDealer().getName() + " scored " + scoreCrib + " from show!");
 		    	model.getDealer().addPoints(scoreCrib);
 		    }
+	}
+	
+	/**
+	 * This function creates a game loop for multiple games (wins / losses).
+	 * 
+	 * Wins favor whoever gets 61, or highest score. Ties are a wash for 
+	 * both players.
+	 */
+	public void playCribbage() {
+		boolean playAgain = true;
+		
+		while(playAgain) {
+			// reset player scores
+			model.getPlayer1().resetScore();
+			model.getPlayer2().resetScore();
+			
+			startGame();
+			
+			if (model.getPlayer1().getScore() >= 61 && model.getPlayer2().getScore() < 61) {
+				System.out.println(model.getPlayer1().getName() + " wins!");
+				model.getPlayer1().recordWin();
+				model.getPlayer2().recordLoss();
+			}
+			else if (model.getPlayer2().getScore() >= 61 && model.getPlayer1().getScore() < 61) {
+				System.out.println(model.getPlayer2().getName() + "wins!");
+				model.getPlayer1().recordLoss();
+				model.getPlayer2().recordWin();
+			}
+			else if (model.getPlayer1().getScore() > model.getPlayer2().getScore()){
+				System.out.println(model.getPlayer1().getName() + " wins!");
+				model.getPlayer1().recordWin();
+				model.getPlayer2().recordLoss();
+			}
+			else if (model.getPlayer2().getScore() > model.getPlayer1().getScore()) {
+				System.out.println(model.getPlayer2().getName() + "wins!");
+				model.getPlayer1().recordLoss();
+				model.getPlayer2().recordWin();
+			}
+			else {
+				System.out.println("Tie!");
+			}
+			System.out.println(model.getPlayer1().getName() + ": Wins(" + model.getPlayer1().getWins() + ") | Losses (" + model.getPlayer1().getLosses()+")");
+			System.out.println(model.getPlayer2().getName() + ": Wins(" + model.getPlayer2().getWins() + ") | Losses (" + model.getPlayer2().getLosses()+")");
+			playAgain = view.playAgain();
+			
+		}
 	}
 }
 		   

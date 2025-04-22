@@ -42,20 +42,32 @@ public abstract class Player {
     }
 
     /**
-     * Returns the player's hand of cards.
+     * Returns the player's hand of cards (copy).
      *
      * @return the Hand object representing the player's cards
      */
     public ArrayList<Card> getHand() {
-        return hand;
+    	ArrayList<Card> cards = new ArrayList<Card>(hand);
+        return cards;
     }
     
+    /**
+     * Adds a card to the player's list of played cards
+     * 
+     * @param card
+     */
     public void addToPlayed(Card card) {
     	this.playedCards.add(card);
     }
 
+    /**
+     * Returns list of cards played by player
+     * 
+     * @return playedCards copy
+     */
     public ArrayList<Card> getPlayed() {
-    	return playedCards;
+    	ArrayList<Card> cards = new ArrayList<Card>(playedCards);
+    	return cards;
     }
     /**
      * Adds a card to the player's hand.
@@ -104,6 +116,9 @@ public abstract class Player {
         hand.clear();
     }
     
+    /**
+     * Clears all cards played by player - resets.
+     */
     public void clearPlayed() {
     	playedCards.clear();
     }
@@ -151,7 +166,14 @@ public abstract class Player {
     public int getLosses() {
         return losses;
     }
-
+    
+    /**
+     * Resets score between games
+     */
+    public void resetScore() {
+    	this.score = 0; 
+    }
+    
     /**
      * Returns a string representation of the player, including their name and win/loss record.
      *

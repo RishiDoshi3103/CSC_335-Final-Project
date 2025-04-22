@@ -98,4 +98,22 @@ public class TextViewer {
 	public void special31(Player player) {
 		System.out.println(player.getName() + " scores 2 points for 31!");
 	}
+	
+	public boolean playAgain() {
+		while (true) {
+			System.out.print("Play Again (y/n): ");
+			String input = scanner.nextLine().trim().toLowerCase();
+			if (input.startsWith("y")) {
+				return true;
+			}
+			else if (input.startsWith("n")) {
+				return false;
+			}
+			else {
+				System.out.println("Please enter y-(yes) or n-(no).");
+			}
+		}
+	
+		
+	}
 }
