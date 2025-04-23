@@ -1,5 +1,5 @@
 package strategy;
 
-public class EasyStrategy {
+public class EasyStrategy implements Strategy {
 
 }
