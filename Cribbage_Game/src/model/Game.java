@@ -3,8 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+import Player.ComputerPlayer;
 import Player.HumanPlayer;
 import Player.Player;
+import ui.GameStarter;
 
 public class Game {
 	private Deck deck;
@@ -31,10 +33,20 @@ public class Game {
 	 * @param name1 Name of First Player 
 	 * @param name2 Name of Second Player 
 	 */
-	public Game(String name1, String name2) {
+	public Game(String name1, String name2, int numComputers) {
 		deck = new Deck();
-		player1 = new HumanPlayer("Player 1");
-		player2 = new HumanPlayer("Player 2");
+		if (numComputers < 1) {
+			player1 = new HumanPlayer("Player 1");
+			player2 = new HumanPlayer("Player 2");
+		}
+		else if (numComputers < 2) {
+			player1 = new HumanPlayer("Player 1");
+			player2 = new ComputerPlayer("Player 2", GameStarter.getStrat("Player 2"));
+		}
+		else {
+			player1 = new ComputerPlayer("Player 1", GameStarter.getStrat("Player 1"));
+			player2 = new ComputerPlayer("Player 2", GameStarter.getStrat("Player 2"));
+		}
 		crib = new ArrayList<Card>();
 		sequenceCards = new ArrayList<Card>();
 	}
@@ -249,7 +261,8 @@ public class Game {
 		}
 		
 		int matches = 0;
-		Card lastPlayed = sequenceCards.getLast();
+//		Card lastPlayed = sequenceCards.getLast();
+		Card lastPlayed = sequenceCards.get(sequenceCards.size() - 1);
 		for (int i = sequenceCards.size() - 2; i >= 0; i--) {
 			if (sequenceCards.get(i).getRank().equals(lastPlayed.getRank()) ) {
 				matches++;
