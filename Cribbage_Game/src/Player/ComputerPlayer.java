@@ -1,6 +1,12 @@
 package Player;
 
+import model.Card;
 import strategy.DiscardStrategy;
+import strategy.EasyDiscard;
+import strategy.EasyStrategy;
+import strategy.HardDiscard;
+import strategy.HardStrategy;
+import strategy.Strategy;
 
 /**
  * The ComputerPlayer class represents an AI-controlled player.
@@ -9,6 +15,7 @@ import strategy.DiscardStrategy;
  */
 public class ComputerPlayer extends Player {
     private DiscardStrategy discardStrategy;
+    private Strategy strategy;
 
     /**
      * Constructs a new ComputerPlayer with the specified name and discard strategy.
@@ -16,9 +23,17 @@ public class ComputerPlayer extends Player {
      * @param name the name of the computer player
      * @param discardStrategy the strategy to use for selecting discards
      */
-    public ComputerPlayer(String name, DiscardStrategy discardStrategy) {
+    public ComputerPlayer(String name, int strategy) {
         super(name);
-        this.discardStrategy = discardStrategy;
+        if (strategy == 0) {
+        	this.discardStrategy = new EasyDiscard();
+        	this.strategy = new EasyStrategy();
+        }
+        else {
+        	this.discardStrategy = new HardDiscard();
+        	this.strategy = new HardStrategy();
+        }
+        
     }
 
     /**
@@ -30,6 +45,11 @@ public class ComputerPlayer extends Player {
         System.out.println(name + " (Computer) is taking its turn.");
         // Implement computer-specific turn logic here.
     }
+    
+    public int getPlayIndex() {
+    	// TODO: IMPLEMENT COMPUTER-SPECIFIC LOGIC
+    	return 0;
+    }
 
     /**
      * Uses the assigned discard strategy to select cards to discard from the computer player's hand.
@@ -40,6 +60,15 @@ public class ComputerPlayer extends Player {
         if (discardStrategy != null) {
             discardStrategy.selectDiscard(hand);
         }
+    }
+    
+    /*
+     * Discard a card from hand based on discardStrategy
+     * Return:	the index of the card to discard.
+     */
+    public int discardIndex() {
+        System.out.println(name + " (Computer) is discarding cards using its strategy.");
+        return discardStrategy.selectDiscard(hand);
     }
 
     /**
