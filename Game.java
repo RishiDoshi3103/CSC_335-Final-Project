@@ -113,16 +113,6 @@ public class Game {
 		return player2;
 	}
 	
-	
-	/**
-	 * Returns a copy of sequenceCards.
-	 * 
-	 * @return ArrayList<Card> copy of sequenceCards
-	 */
-	public ArrayList<Card> getSequence() {
-		return new ArrayList<Card>(sequenceCards);
-	}
-	
 	/**
 	 * Places the 'played' card into the sequence manager
 	 * 
@@ -219,15 +209,6 @@ public class Game {
 	 */
 	public void addToTotal(int n) {
 		this.playPointTotal += n;
-	}
-	
-	/**
-	 * Return the total Cribbage values of the played cards
-	 * 
-	 * @return int this.playPointTotal
-	 */
-	public int getTotal() {
-		return this.playPointTotal;
 	}
 	
 	/**

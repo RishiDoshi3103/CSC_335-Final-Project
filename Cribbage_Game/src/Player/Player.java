@@ -1,5 +1,7 @@
 package Player;
 
+import java.util.ArrayList;
+
 import model.Card;
 import model.Hand;
 
@@ -12,7 +14,9 @@ public abstract class Player {
     protected String name;
     protected int wins;
     protected int losses;
-    protected Hand hand;  // The player's current set of cards
+    protected int score;
+    protected ArrayList<Card> hand;  // The player's current set of cards
+    protected ArrayList<Card> playedCards;
 
     /**
      * Constructs a new Player with the specified name.
@@ -23,7 +27,9 @@ public abstract class Player {
         this.name = name;
         this.wins = 0;
         this.losses = 0;
-        this.hand = new Hand();
+        this.score = 0;
+        this.hand = new ArrayList<Card>();
+        this.playedCards = new ArrayList<Card>();
     }
 
     /**
@@ -36,28 +42,85 @@ public abstract class Player {
     }
 
     /**
-     * Returns the player's hand of cards.
+     * Returns the player's hand of cards (copy).
      *
      * @return the Hand object representing the player's cards
      */
-    public Hand getHand() {
-        return hand;
+    public ArrayList<Card> getHand() {
+    	ArrayList<Card> cards = new ArrayList<Card>(hand);
+        return cards;
+    }
+    
+    /**
+     * Adds a card to the player's list of played cards
+     * 
+     * @param card
+     */
+    public void addToPlayed(Card card) {
+    	this.playedCards.add(card);
     }
 
+    /**
+     * Returns list of cards played by player
+     * 
+     * @return playedCards copy
+     */
+    public ArrayList<Card> getPlayed() {
+    	ArrayList<Card> cards = new ArrayList<Card>(playedCards);
+    	return cards;
+    }
     /**
      * Adds a card to the player's hand.
      *
      * @param card the Card to add
      */
     public void addCard(Card card) {
-        hand.addCard(card);
+        hand.add(card);
     }
-
+    
+    /**
+     * Removes a card from player's hand.
+     * Also used to 'play' a card, during
+     * play phase.
+     * 
+     * @param  index
+     * @return discarded card
+     */
+    public Card discard(int index) {
+    	return hand.remove(index);
+    }
+    
+    /**
+     * Adds points to score.
+     * 
+     * @param points
+     */
+    public void addPoints(int points) {
+    	score += points;
+    }
+    
+    /**
+     * Returns player's score 
+     * 
+     * @return score
+     */
+    public int getScore() {
+    	return score;
+    }
+    
+   
     /**
      * Clears all cards from the player's hand.
      */
     public void clearHand() {
-        hand.getCards().clear();
+        hand.clear();
+    }
+    
+    /**
+     * Clears all cards played by player - resets.
+     */
+    public void clearPlayed() {
+    	playedCards.clear();
     }
 
     /**
@@ -103,7 +166,14 @@ public abstract class Player {
     public int getLosses() {
         return losses;
     }
-
+    
+    /**
+     * Resets score between games
+     */
+    public void resetScore() {
+    	this.score = 0; 
+    }
+    
     /**
      * Returns a string representation of the player, including their name and win/loss record.
      *

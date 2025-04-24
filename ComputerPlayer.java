@@ -1,7 +1,5 @@
 package Player;
 
-import java.util.ArrayList;
-
 import model.Card;
 import strategy.DiscardStrategy;
 import strategy.EasyDiscard;
@@ -27,13 +25,11 @@ public class ComputerPlayer extends Player {
      */
     public ComputerPlayer(String name, int strategy) {
         super(name);
-        if (strategy == 1) {
-        	System.out.println("Initializing easy strategy");
+        if (strategy == 0) {
         	this.discardStrategy = new EasyDiscard();
         	this.strategy = new EasyStrategy();
         }
         else {
-        	System.out.println("Initializing hard strategy");
         	this.discardStrategy = new HardDiscard();
         	this.strategy = new HardStrategy();
         }
@@ -50,8 +46,9 @@ public class ComputerPlayer extends Player {
         // Implement computer-specific turn logic here.
     }
     
-    public int getPlayIndex(ArrayList<Card> sequence, int total) {
-    	return strategy.playIndex(this.hand, sequence, total) + 1;
+    public int getPlayIndex() {
+    	// TODO: IMPLEMENT COMPUTER-SPECIFIC LOGIC
+    	return 0;
     }
 
     /**
@@ -61,7 +58,7 @@ public class ComputerPlayer extends Player {
     public void discardCards() {
         System.out.println(name + " (Computer) is discarding cards using its strategy.");
         if (discardStrategy != null) {
-            discardStrategy.selectDiscard(hand, true);
+            discardStrategy.selectDiscard(hand);
         }
     }
     
@@ -69,9 +66,9 @@ public class ComputerPlayer extends Player {
      * Discard a card from hand based on discardStrategy
      * Return:	the index of the card to discard.
      */
-    public int discardIndex(boolean dealer) {
+    public int discardIndex() {
         System.out.println(name + " (Computer) is discarding cards using its strategy.");
-        return discardStrategy.selectDiscard(hand, dealer) + 1;
+        return discardStrategy.selectDiscard(hand);
     }
 
     /**
