@@ -1,30 +1,31 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Deck {
-	private ArrayList<Card> cards;
-	
-	public Deck() {
-		cards = new ArrayList<Card>();
-		
-		for (Suit suit : Suit.values()) {
-			for (Rank rank : Rank.values()) {
-				cards.add(Card.get(suit, rank));
-			}
-		}
-	}
-	
-	public void shuffle() {
-		Collections.shuffle(cards);
-	}
-	
-	public Card draw() {
-		return cards.remove(0);
-	}
-	
-	public int size() {
-		return cards.size();
-	}
+    private final LinkedList<Card> cards;
+
+    public Deck() {
+        cards = new LinkedList<>();
+        for (Suit suit : Suit.values()) {
+            for (Rank rank : Rank.values()) {
+                cards.add(new Card(rank, suit));
+            }
+        }
+        shuffle();
+    }
+
+    public void shuffle() {
+        Collections.shuffle(cards);
+    }
+
+    public Card draw() {
+        return cards.pollFirst();
+    }
+
+    public boolean isEmpty() {
+        return cards.isEmpty();
+    }
 }

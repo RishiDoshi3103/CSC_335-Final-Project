@@ -1,319 +1,250 @@
 package controller;
 
-import Player.Player;
 import model.Card;
 import model.Game;
-import model.Rank;
-import ui.TextViewer;
+import player.ComputerPlayer;
+import player.HumanPlayer;
+import player.Player;
+import strategy.EasyStrategy;
+import strategy.HardStrategy;
+import ui.GameView;
 
-/**
- * 
- *  Score Reference
- *  Scoring is seemingly broken into four different phases: the pre-play that accounts
- *  for only the start card, play where cards are considered at each turn, the show at
- *  the end for full hand analysis, and the crib at the end for the dealer. Dealer 
- *  switches off each round.
- *  
- *  Pre-Play:
- *   - If the start card is a Jack, the dealer gets............................2 point
- *   
- *  During Play: 
- *   - If one player says "go", the other player gets..........................1 point
- * 	 - Playing the last card of a round that doesn't go over 31................1 point
- *   - Playing a card that causes the total to equal 15 or 31..................2 points
- *   - Playing the same RANK as the last played card (pair)....................2 points
- *   - Playing a third same RANK card as the last two (pair royal).............6 points
- *   - Playing a fourth same RANK card as the last three (Double pair royal)...12 points
- *   - Playing the third (or more) card of a consecutive run of RANKs 
- *     (i.e, 2♡, 3♧, 4♤.. etc), grants points equal to the total cards in
- *     that run (3 consecutive cards gives 3 points. 4 grants 4 points, etc)...3+ points
- *     ** Note: they don't have to be in direct order (2, 4, 3 counts, so 
- *     long as there isn't another number in between them that wouldn't  
- *     qualify: 2, 8, 4, 3 doesn't count) **
- *   
- *   The show: (Scores based on individual hands and start card - includes dealer)
- *   - Any combination of cards adding up to 15 (can reuse cards)..............2 points
- *   - A pair (two of the same RANK)...........................................2 points
- *   - Three of a kind (three of the same RANK)................................6 points
- *   - Four of a kind (four of the same RANK)..................................12 points
- *   - The longest consecutive run of RANKS (similar to play) grants
- *     points equal to the total cards in that run.............................3+ points
- *     ** Note: smaller runs in a bigger run do not count, only the longest
- *     consecutive streak is counted.
- *   - If all 4 cards in hand are same SUIT (Flush)............................4 points
- *   - If all 4 cards in hand AND the start card are same SUIT (Flush).........5 points
- *   - If a Jack is in players hand and is same SUIT as start card.............1 point
- *   
- *   The Crib:
- *   - Same as the show, except can only get a flush if all 4 in the crib, and the
- *   start cards are same SUIT.
- */
+import java.util.List;
 
+import javax.swing.JOptionPane;
 
 public class GameController {
-	private Game model;
-	private TextViewer view;
-	
-	/** 
-	 * Each instance of the game requires a Game model - which contains
-	 * game state, which the controller acts on. It also accepts a viewer
-	 * that should primarily focus on communicating and accepting input
-	 * from the user.
-	 * 
-	 * @param model Game Object
-	 * @param view  Requisite Viewer
-	 */
-	public GameController(Game model, TextViewer view) {
-		this.model = model;
-		this.view = view;
-	}
-	
-	/**
-	 * This function represents the main game loop. 
-	 * - It starts with a loop that checks if either player in the Game 
-	 * has a score at or over 61, and ends if either meets this condition.
-	 * 
-	 * - It then begins the 'Rounds' as Game.startRound() switches dealers,
-	 * clears player's hands/played cards, clears the crib, resets the sequence 
-	 * stack (and associated stack point total), sets a new and shuffled deck, 
-	 * and deals 6 cards to each player.
-	 * 
-	 * - It prompts each player to then discard two cards via the promptDiscard
-	 * function. The chosen cards are immediately added to the Game crib.
-	 * 
-	 * - A starter card is then drawn and assigned from the deck.
-	 * 
-	 * - Then the game plays out through the playPhase(), allowing players to
-	 * play cards, before doing a final round of scoring. 
-	 * 
-	 * Note: Any print lines and TextViewer calls should be replaced by GUI,
-	 * or increased-complexity viewer. These are meant to show game states
-	 * via a text based viewer as a rough draft, and testing purposes.
-	 */
-	public void startGame() {
-		while (!model.gameOver()) {
-			model.startRound();
-			System.out.println("--- Starting Round ---");
-			
-			promptDiscard(model.getPlayer1());
-			promptDiscard(model.getPlayer2());
-			
-			view.showCrib(model.showCrib());
-			
-			System.out.println("--- Starter Card ---");
-			starterCard();
-			
-			System.out.println("--- Play Phase ---");
-			playPhase();
-			
-			System.out.println(model.getPlayer1().getName() + " Score: " + model.getPlayer1().getScore());
-			System.out.println(model.getPlayer2().getName() + " Score: " + model.getPlayer2().getScore());
-		}
-	}
-	
-	/**
-	 * This function prompts a player, through the viewer, to discard two cards
-	 * based on index representation of the cards in their hand.
-	 * 
-	 * @param player Desired player to discard
-	 */
-	private void promptDiscard(Player player) {
-		for (int i=0; i < 2; i++) {
-			view.showHand(player);
-			int choice = view.discard(player);
-			Card card = model.cribCard(player.discard(choice - 1));
-			System.out.println(player.getName() + " added " + card + " to crib.");
-		}
-	}
-	
-	/**
-	 * This basic function draws and assigns a starter card. If it is a jack, the
-	 * Game.drawStarter() function automatically gives the current dealer 2 points.
-	 * Viewer should reflect this.
-	 */
-	private void starterCard() {
-		Card starter = model.drawStarter();
-		System.out.println("Starter Card: " + starter.toString());
-		if (starter.getRank().equals(Rank.JACK)) {
-			System.out.println("Dealer: " + model.getDealer().getName() + ", +2 points.");
-			System.out.println(model.getDealer().getName() + " total: " + model.getDealer().getScore());
-		}
-	}
-	
-	/**
-	 * This complicated function represents the core card play loop.
-	 * - It begins by determining who the dealer is through the Game
-	 * state, setting who should take the first turn. Then, while each
-	 * player has cards to play, it runs:
-	 * - It checks if either player can actually play any cards in
-	 * their hand that wont cause the play stack to go over 31 points.
-	 * - If neither can play, it allocates 1 point to the player that
-	 * played the last card, before reseting the play stack points
-	 * and sequence (for determining viable runs).
-	 * - If the active turn player can play, it displays their hand
-	 * via the viewer and the play stack point total.
-	 * - It prompts the user to choose a card in their hand to play,
-	 * assigning that specific card to add it to the sequence, and its' 
-	 * rank value to the play stack point total. It also adds that card
-	 * to the players played cards, and sets the player as the last player
-	 * to play a card.
-	 * - It then runs a quick active point check for pairs or runs in the
-	 * sequence through the Game state functions checkPairs() and checkRuns().
-	 * - If either return an integer value, it adds those 'peg' points to the 
-	 * active turn player's points and displays them through the viewer.
-	 * - It also checks if the play stack point total reaches 15, or 31 (proceeds
-	 * to reset the play stack and stack points in this case).
-	 * - If the active player cannot play a card, but has cards still in their
-	 * hand, it checks the opponents hand.
-	 * - If the opponent cannot play, but also has cards in their hand, it 
-	 * triggers a 'Go', point allocation, and reset.
-	 * - The end of the loop switches the active turn to the opponent, when
-	 * appropriate.
-	 * - Finally, it does a last played check, and runs the score allocations
-	 * for the show / crib.
-	 * 
-	 */
-	private void playPhase() {
-		    Player activeTurn;
-		    Player opponent;
-		    Player lastPlayerToPlay = null;
-		    
-		    // Determine who starts the turn based on who is the dealer
-		    if (model.getDealer() == model.getPlayer1()) {
-		        activeTurn = model.getPlayer2();
-		        opponent = model.getPlayer1();
-		    } else {
-		        activeTurn = model.getPlayer1();
-		        opponent = model.getPlayer2();
-		    }
-		    
-		    while (!(model.getPlayer1().getHand().isEmpty() && model.getPlayer2().getHand().isEmpty())) {
-		    	// Check if both players can't play (Go-Go situation)
-		    	if (!model.handCheck(activeTurn) && !model.handCheck(opponent)) {
-		    	    if (lastPlayerToPlay != null) {
-		    	        System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
-		    	        lastPlayerToPlay.addPoints(1);
-		    	    }
-		    	    model.resetTotal();
-		    	    model.resetSequence();
-		    	    continue;
-		    	} else if (model.handCheck(activeTurn)) {
-		    		view.showHand(activeTurn);
-		    		view.showPlayTotal(model.pointTotal());
-		    		int choice = view.playCard(activeTurn, model.pointTotal());
-		    		Card card = activeTurn.discard(choice - 1);
-		    		model.addToTotal(card.getRank().getValue());
-		    		model.addToSequence(card); // Sequence Scoring
-		    		activeTurn.addToPlayed(card); // Hand scoring at end
-		    		lastPlayerToPlay = activeTurn;
-		    		
-		    		System.out.println(activeTurn.getName() + " plays " + card + " | Total: " + model.pointTotal());
-		    		
-		    		int pairScore = model.checkPairs();
-		    		if (pairScore > 0) {
-		    			System.out.println(activeTurn.getName() + " scored " + pairScore + " from pairs!");
-		    			activeTurn.addPoints(pairScore);
-		    		}
-		    		int runScore = model.checkRuns();
-		    		if (runScore > 0) {
-		    			System.out.println(activeTurn.getName() + " scored " + runScore + " from a run!");
-		    			activeTurn.addPoints(runScore);
-		    		}
-		    		
-		    		if (model.pointTotal() == 15) {
-		    			System.out.println("15! " + activeTurn.getName() + " gets 1 point.");
-		    		}
-		    		
-		    		if (model.pointTotal() == 31) {
-		    			System.out.println("31 Reached! " + activeTurn.getName() + " gets 2 points.");
-		    			activeTurn.addPoints(2);
-		    			model.resetTotal();
-		    			model.resetSequence();
-		    		}
-		    	} else {
-		    		if (!activeTurn.getHand().isEmpty()) {
-		    			System.out.println(activeTurn.getName() + " Says Go..");
-		    			if (!model.handCheck(opponent) && !opponent.getHand().isEmpty()) {
-		    				System.out.println(opponent.getName() + " pegs 1 for Go");
-		    				opponent.addPoints(1);
-		    				model.resetTotal();
-		    				model.resetSequence();
-		    			}
-		    		}
-		    	}
-		    	
-		    	Player swap = activeTurn;
-		    	activeTurn = opponent;
-		    	opponent = swap;
-		    }
-		    
-		    if (model.pointTotal() != 0 && model.pointTotal() < 31 && lastPlayerToPlay != null) {
-		    	System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
-		    	lastPlayerToPlay.addPoints(1);
-		    }
-		    
-		    int score1 = model.scoreHand(activeTurn, false);
-		    if (score1 > 0) {
-		    	System.out.println(activeTurn.getName() + " scored " + score1 + " from show!");
-		    	activeTurn.addPoints(score1);
-		    }
-		    int score2 = model.scoreHand(opponent, false);
-		    if (score2 > 0) {
-		    	System.out.println(opponent.getName() + " scored " + score2 + " from show!");
-		    	opponent.addPoints(score2);
-		    }
-		    int scoreCrib = model.scoreHand(model.getDealer(), true);
-		    if (scoreCrib > 0) {
-		    	System.out.println("(Dealer) " + model.getDealer().getName() + " scored " + scoreCrib + " from show!");
-		    	model.getDealer().addPoints(scoreCrib);
-		    }
-	}
-	
-	/**
-	 * This function creates a game loop for multiple games (wins / losses).
-	 * 
-	 * Wins favor whoever gets 61, or highest score. Ties are a wash for 
-	 * both players.
-	 */
-	public void playCribbage() {
-		boolean playAgain = true;
-		
-		while(playAgain) {
-			// reset player scores
-			model.getPlayer1().resetScore();
-			model.getPlayer2().resetScore();
-			
-			startGame();
-			
-			if (model.getPlayer1().getScore() >= 61 && model.getPlayer2().getScore() < 61) {
-				System.out.println(model.getPlayer1().getName() + " wins!");
-				model.getPlayer1().recordWin();
-				model.getPlayer2().recordLoss();
-			}
-			else if (model.getPlayer2().getScore() >= 61 && model.getPlayer1().getScore() < 61) {
-				System.out.println(model.getPlayer2().getName() + "wins!");
-				model.getPlayer1().recordLoss();
-				model.getPlayer2().recordWin();
-			}
-			else if (model.getPlayer1().getScore() > model.getPlayer2().getScore()){
-				System.out.println(model.getPlayer1().getName() + " wins!");
-				model.getPlayer1().recordWin();
-				model.getPlayer2().recordLoss();
-			}
-			else if (model.getPlayer2().getScore() > model.getPlayer1().getScore()) {
-				System.out.println(model.getPlayer2().getName() + "wins!");
-				model.getPlayer1().recordLoss();
-				model.getPlayer2().recordWin();
-			}
-			else {
-				System.out.println("Tie!");
-			}
-			System.out.println(model.getPlayer1().getName() + ": Wins(" + model.getPlayer1().getWins() + ") | Losses (" + model.getPlayer1().getLosses()+")");
-			System.out.println(model.getPlayer2().getName() + ": Wins(" + model.getPlayer2().getWins() + ") | Losses (" + model.getPlayer2().getLosses()+")");
-			playAgain = view.playAgain();
-			
-		}
-	}
-}
-		   
+    private final Game model;
+    private final GameView view;
 
+    private Player player1;
+    private Player player2;
+    private Player currentPlayer;
+    private Player otherPlayer;
+    private Player lastPlayed;
+
+    public GameController(Game model, GameView view) {
+        this.model = model;
+        this.view = view;
+        this.view.setController(this);
+    }
+
+    public void startGame(String mode, String name1, String name2) {
+        switch (mode) {
+            case "Human vs Computer (Easy)" -> {
+                player1 = new HumanPlayer(name1);
+                player2 = new ComputerPlayer("AI (Easy)", new EasyStrategy());
+            }
+            case "Human vs Computer (Hard)" -> {
+                player1 = new HumanPlayer(name1);
+                player2 = new ComputerPlayer("AI (Hard)", new HardStrategy());
+            }
+            case "Human vs Human" -> {
+            	
+            }
+            case "Human vs Human (Local)" ->  {
+                player1 = new HumanPlayer(name1);
+                player2 = new HumanPlayer(name2);
+            }
+            default -> throw new IllegalArgumentException("Unknown mode: " + mode);
+        }
+
+        model.setPlayers(player1, player2);
+        view.setPlayers(player1, player2);
+        nextRound();
+    }
+
+
+    public void nextRound() {
+        model.startRound();
+        view.showMessage("🎮 New round started.");
+        view.updateScores(player1.getScore(), player2.getScore());
+        handleDiscardPhase();
+    }
+
+    private void handleDiscardPhase() {
+        if (player1 instanceof ComputerPlayer cp1) {
+            List<Card> discards = cp1.discardToCrib();
+            model.discardToCrib(cp1, discards);
+            discards.forEach(cp1::removeCard);
+            view.showMessage(cp1.getName() + " discarded cards.");
+        }
+
+        if (player2 instanceof ComputerPlayer cp2) {
+            List<Card> discards = cp2.discardToCrib();
+            model.discardToCrib(cp2, discards);
+            discards.forEach(cp2::removeCard);
+            view.showMessage(cp2.getName() + " discarded cards.");
+        }
+
+        if (player1 instanceof HumanPlayer) view.enableDiscard(player1);
+        if (player2 instanceof HumanPlayer) view.enableDiscard(player2);
+
+        view.updateHands(player1, player2, false);
+    }
+
+    public void confirmDiscard(Player player) {
+        List<Card> selected = view.getSelectedCards();
+        if (selected.size() != 2) {
+            view.showMessage("❗ Please select exactly 2 cards to discard.");
+            return;
+        }
+
+        model.discardToCrib(player, selected);
+        selected.forEach(player::removeCard);
+        view.updateHands(player1, player2, false);
+        view.disableDiscard();
+
+        if (bothPlayersDiscarded()) {
+            startPlayPhase();
+        }
+    }
+
+    private boolean bothPlayersDiscarded() {
+        return player1.getHand().size() == 4 && player2.getHand().size() == 4;
+    }
+
+    private void startPlayPhase() {
+        model.setStarterCard();
+        Card starter = model.getStarterCard();
+        view.showStarter(starter);
+
+        if (starter.getRank().getLabel().equals("J")) {
+            model.getDealer().addPoints(2);
+            view.showMessage(model.getDealer().getName() + " scores 2 for Jack starter!");
+        }
+
+        currentPlayer = model.getNonDealer();
+        otherPlayer = model.getDealer();
+        model.resetPlaySequence();
+
+        view.updateScores(player1.getScore(), player2.getScore());
+        view.updateHands(player1, player2, false);
+        nextPlay();
+    }
+
+    private void nextPlay() {
+        if (!model.canPlay(player1) && !model.canPlay(player2)) {
+            if (lastPlayed != null) {
+                lastPlayed.addPoints(1);
+                view.showMessage(lastPlayed.getName() + " scores 1 for last card.");
+            }
+            model.resetPlaySequence();
+            view.updateScores(player1.getScore(), player2.getScore());
+            scoreHands();
+            return;
+        }
+
+        if (!model.canPlay(currentPlayer)) {
+            view.showMessage(currentPlayer.getName() + " says 'Go'.");
+            swapPlayers();
+            nextPlay();
+            return;
+        }
+
+        if (currentPlayer instanceof ComputerPlayer cp) {
+            Card toPlay = cp.selectCardToPlay(model.getPlayTotal());
+            if (toPlay != null) {
+                playCard(currentPlayer, toPlay);
+            } else {
+                view.showMessage(cp.getName() + " cannot play.");
+                swapPlayers();
+                nextPlay();
+            }
+        } else {
+            view.enablePlay(currentPlayer);
+        }
+    }
+
+    public void confirmPlay(Player player) {
+        List<Card> selected = view.getSelectedCards();
+        if (selected.size() != 1) {
+            view.showMessage("❗ Select exactly 1 card to play.");
+            return;
+        }
+
+        Card card = selected.get(0);
+        if (!model.canPlayCard(card)) {
+            view.showMessage("❗ That card cannot be played now.");
+            return;
+        }
+
+        playCard(player, card);
+    }
+
+    private void playCard(Player player, Card card) {
+        model.playCard(player, card);
+        player.removeCard(card);
+        lastPlayed = player;
+
+        view.showPlayedCard(player.getName(), card, model.getPlayTotal());
+
+        int score = model.checkPairs() + model.checkRuns() + model.checkFifteenOrThirtyOne();
+        if (score > 0) {
+            player.addPoints(score);
+            view.showMessage(player.getName() + " scores " + score + " points!");
+        }
+
+        if (model.getPlayTotal() == 31) {
+            model.resetPlaySequence();
+        }
+
+        view.updateScores(player1.getScore(), player2.getScore());
+        view.updateHands(player1, player2, false);
+        swapPlayers();
+        nextPlay();
+    }
+
+    private void swapPlayers() {
+        Player temp = currentPlayer;
+        currentPlayer = otherPlayer;
+        otherPlayer = temp;
+    }
+
+    private void scoreHands() {
+        int p1Score = model.scoreHand(player1, false);
+        int p2Score = model.scoreHand(player2, false);
+        int cribScore = model.scoreHand(model.getDealer(), true);
+
+        if (p1Score > 0) {
+            player1.addPoints(p1Score);
+            view.showMessage(player1.getName() + " scores " + p1Score + " from hand.");
+        }
+
+        if (p2Score > 0) {
+            player2.addPoints(p2Score);
+            view.showMessage(player2.getName() + " scores " + p2Score + " from hand.");
+        }
+
+        if (cribScore > 0) {
+            model.getDealer().addPoints(cribScore);
+            view.showMessage(model.getDealer().getName() + " scores " + cribScore + " from crib.");
+        }
+
+        view.updateScores(player1.getScore(), player2.getScore());
+
+        if (model.gameOver()) {
+            Player winner = player1.getScore() >= 121 ? player1 : player2;
+
+            StringBuilder summary = new StringBuilder();
+            summary.append("\n🎉 Game Over!\n");
+            summary.append(player1.getName()).append(" Score: ").append(player1.getScore()).append("\n");
+            summary.append(player2.getName()).append(" Score: ").append(player2.getScore()).append("\n");
+            summary.append("🏆 Winner: ").append(winner.getName()).append("\n");
+
+            // Log to game window
+            view.showMessage(summary.toString());
+
+            // Show dialog too
+            JOptionPane.showMessageDialog(null, summary.toString(), "Game Summary", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            view.promptNextRound();
+        }
+
+
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+}

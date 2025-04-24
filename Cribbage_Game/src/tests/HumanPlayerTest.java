@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import Player.HumanPlayer;
 import model.Card;
+import player.HumanPlayer;
 
 
 /**

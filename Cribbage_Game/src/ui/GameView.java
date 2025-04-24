@@ -1,293 +1,236 @@
 package ui;
 
-import controller.GameController; 
+import controller.GameController;
 import model.Card;
-import model.Hand;
-import Player.Player;
-import Player.ComputerPlayer; 
+import player.Player;
+
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameView extends JFrame {
+	private static final long serialVersionUID = 1L;
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-}
-    /*
-    private GameController controller;
+	private GameController controller;
+    private Player player1;
+    private Player player2;
 
-    // UI components for game display
-    private JPanel playerPanel;
-    private JPanel opponentPanel;
+    private JLabel player1ScoreLabel;
+    private JLabel player2ScoreLabel;
+    private JLabel starterCardLabel;
+    private JTextArea messageArea;
+
+    private JPanel player1HandPanel;
+    private JPanel player2HandPanel;
     private JPanel cribPanel;
-    private JPanel scorePanel;
-    private JLabel playerScoreLabel;
-    private JLabel opponentScoreLabel;
-    private JButton discardButton;
-    private JButton playCardButton;
-    
-    // Mode selection components
-    private JButton playAgainstComputerButton;
-    private JButton playOverNetworkButton;
-    private JPanel modeSelectionPanel;
+    private JPanel playArea;
 
-    // Constructor
+    private JButton confirmButton;
+    private JButton playButton;
+
+    private final List<JButton> player1CardButtons = new ArrayList<>();
+    private final List<Card> selectedForDiscard = new ArrayList<>();
+
+    private Player currentPlayer;
+
     public GameView() {
-        // Set vs Computer or vs Player over Network
-        initializeModeSelectionUI();
-    }
-
-    // Initialize the mode selection UI (offering choice to play locally or over the network)
-    private void initializeModeSelectionUI() {
-        // Set up JFrame properties
         setTitle("Cribbage Game");
-        setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1000, 750);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Create the mode selection panel
-        modeSelectionPanel = new JPanel();
-        modeSelectionPanel.setLayout(new GridLayout(2, 1));
-
-        // Buttons for selecting game mode
-        playAgainstComputerButton = new JButton("Play Against Computer");
-        playOverNetworkButton = new JButton("Play Over Network");
-
-        // Add action listeners to the buttons
-        playAgainstComputerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startGameAgainstComputer();
-            }
-        });
-
-        playOverNetworkButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startGameOverNetwork();
-            }
-        });
-
-        // Add buttons to the mode selection panel
-        modeSelectionPanel.add(playAgainstComputerButton);
-        modeSelectionPanel.add(playOverNetworkButton);
-
-        // Add mode selection panel to the frame
-        add(modeSelectionPanel, BorderLayout.CENTER);
-
-        // Make the UI visible with mode selection first
+        initUI();
         setVisible(true);
     }
 
-    // Initialize the game components once a mode is selected
-    private void initializeGameComponents() {
-        // Remove mode selection panel after a choice is made
-        remove(modeSelectionPanel);
+    private void initUI() {
+        // Top panel with scores and starter card
+        JPanel topPanel = new JPanel(new BorderLayout());
 
-        // Create main panels for game display
-        playerPanel = new JPanel();
-        opponentPanel = new JPanel();
+        player1ScoreLabel = new JLabel("P1: 0", SwingConstants.LEFT);
+        player1ScoreLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        topPanel.add(player1ScoreLabel, BorderLayout.WEST);
+
+        starterCardLabel = new JLabel("Starter: ---", SwingConstants.CENTER);
+        starterCardLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        topPanel.add(starterCardLabel, BorderLayout.CENTER);
+
+        player2ScoreLabel = new JLabel("P2: 0", SwingConstants.RIGHT);
+        player2ScoreLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        topPanel.add(player2ScoreLabel, BorderLayout.EAST);
+
+        add(topPanel, BorderLayout.NORTH);
+
+        // Center panel: P2 Hand, Crib, P1 Hand
+        JPanel centerPanel = new JPanel(new GridLayout(4, 1));
+
+        player2HandPanel = new JPanel();
+        player2HandPanel.setBorder(BorderFactory.createTitledBorder("Player 2"));
+        centerPanel.add(player2HandPanel);
+
         cribPanel = new JPanel();
-        scorePanel = new JPanel();
+        cribPanel.setBorder(BorderFactory.createTitledBorder("Crib"));
+        centerPanel.add(cribPanel);
 
-        // Set layouts for the panels
-        playerPanel.setLayout(new FlowLayout());
-        opponentPanel.setLayout(new FlowLayout());
-        cribPanel.setLayout(new FlowLayout());
-        scorePanel.setLayout(new BoxLayout(scorePanel, BoxLayout.Y_AXIS));
-        
-        
-        // Labels to show scores
-        playerScoreLabel = new JLabel("Player Score: 0");
-        opponentScoreLabel = new JLabel("Opponent Score: 0");
-        
-        // Set alignment for labels
-        playerScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        opponentScoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        playArea = new JPanel();
+        JTextArea playedCardsArea = new JTextArea("Played Cards:");
+        playedCardsArea.setFont(new Font("Consolas", Font.BOLD, 16));  // 👈 Easy to read
+        playedCardsArea.setBackground(new Color(240, 240, 240));       // 👈 Light background
+        playedCardsArea.setForeground(Color.DARK_GRAY);                // 👈 Dark text
+        playedCardsArea.setMargin(new Insets(10, 10, 10, 10));          // 👈 Padding
+        playedCardsArea.setEditable(false);
 
-        // Add padding or margins for better spacing
-        playerScoreLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));  // Top, Left, Bottom, Right padding
-        opponentScoreLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
-        // Add score labels to score panel
-        scorePanel.add(playerScoreLabel);
-        scorePanel.add(Box.createVerticalStrut(10));  // Add vertical space between labels
-        scorePanel.add(opponentScoreLabel);
-        
-        scorePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Top, Left, Bottom, Right padding
 
-        // Buttons for player actions
-        discardButton = new JButton("Discard");
-        playCardButton = new JButton("Play Card");
+        player1HandPanel = new JPanel();
+        player1HandPanel.setBorder(BorderFactory.createTitledBorder("Player 1"));
+        centerPanel.add(player1HandPanel);
 
-        // Add action listeners for buttons
-        discardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleDiscard();
-            }
-        });
+        add(centerPanel, BorderLayout.CENTER);
 
-        playCardButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handlePlayCard();
-            }
-        });
+        // Bottom panel: messages and buttons
+        JPanel bottomPanel = new JPanel(new BorderLayout());
 
-        // Layout setup for JFrame
-        add(playerPanel, BorderLayout.SOUTH);
-        add(opponentPanel, BorderLayout.NORTH);
-        add(cribPanel, BorderLayout.CENTER);
-        add(scorePanel, BorderLayout.EAST);
+        messageArea = new JTextArea();
+        messageArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(messageArea);
+        scroll.setPreferredSize(new Dimension(1000, 150));
+        bottomPanel.add(scroll, BorderLayout.CENTER);
 
-        // Buttons for Play Panel
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 2));
-        buttonPanel.add(discardButton);
-        buttonPanel.add(playCardButton);
-        add(buttonPanel, BorderLayout.SOUTH);
 
-        // Revalidate and repaint the frame to refresh
-        revalidate();
-        repaint();
+        confirmButton = new JButton("Confirm Discard");
+        confirmButton.addActionListener(e -> {
+            if (controller != null) controller.confirmDiscard(currentPlayer);
+        });
+        confirmButton.setEnabled(false);
+        buttonPanel.add(confirmButton);
+
+        playButton = new JButton("Play Card");
+        playButton.addActionListener(e -> {
+            if (controller != null) controller.confirmPlay(currentPlayer);
+        });
+        playButton.setEnabled(false);
+        buttonPanel.add(playButton);
+
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    // Set the game controller
     public void setController(GameController controller) {
         this.controller = controller;
     }
 
-    // Method to update the UI with the current game state
-    public void updateView(Player player, Player opponent, Hand playerHand, Hand opponentHand, int playerScore, int opponentScore) {
-        // Update player and opponent hands
-        updatePlayerHand(playerHand);
-        updateOpponentHand(opponentHand);
+    public void setPlayers(Player p1, Player p2) {
+        this.player1 = p1;
+        this.player2 = p2;
+        this.currentPlayer = p1;
+        updateScores(p1.getScore(), p2.getScore());
+    }
 
-        // Update the crib (if needed)
-        updateCrib();
+    public void showStarter(Card starter) {
+        starterCardLabel.setText("Starter: " + starter);
+    }
 
-        // Update the score labels
-        updateScores(playerScore, opponentScore);
+    public void updateScores(int p1Score, int p2Score) {
+        player1ScoreLabel.setText(player1.getName() + ": " + p1Score);
+        player2ScoreLabel.setText(player2.getName() + ": " + p2Score);
+    }
 
-        // Update the opponent label
-        if (opponent instanceof ComputerPlayer) {
-            updateOpponentLabel("Computer");
-        } else {
-            updateOpponentLabel("Network Player");
+    public void showMessage(String msg) {
+        messageArea.append(msg + "\n");
+    }
+
+    public void updateHands(Player p1, Player p2, boolean revealP2) {
+        this.player1 = p1;
+        this.player2 = p2;
+
+        player1HandPanel.removeAll();
+        player2HandPanel.removeAll();
+        player1CardButtons.clear();
+        selectedForDiscard.clear();
+
+        for (Card card : p1.getHand()) {
+            JButton button = new JButton(card.toString());
+            button.setFont(new Font("Monospaced", Font.BOLD, 18)); // 👈 More readable
+            button.setToolTipText("Click to select: " + card.toString()); // 👈 Tooltip
+            button.setMargin(new Insets(10, 14, 10, 14)); // 👈 Padding for spacing
+
+            button.addActionListener(e -> {
+                if (selectedForDiscard.contains(card)) {
+                    selectedForDiscard.remove(card);
+                    button.setBackground(null);
+                } else if (selectedForDiscard.size() < 2) {
+                    selectedForDiscard.add(card);
+                    button.setBackground(Color.CYAN);
+                }
+            });
+
+            player1HandPanel.add(button);
+            player1CardButtons.add(button);
+        }
+
+
+        for (Card card : p2.getHand()) {
+            JButton btn = new JButton(revealP2 ? card.toString() : "??");
+            player2HandPanel.add(btn);
+        }
+
+        revalidate();
+        repaint();
+    }
+
+    public void enableDiscard(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+        confirmButton.setEnabled(true);
+        playButton.setEnabled(false);
+    }
+
+    public void enablePlay(Player currentPlayer) {
+        this.currentPlayer = currentPlayer;
+        confirmButton.setEnabled(false);
+        playButton.setEnabled(true);
+    }
+
+    public void disableDiscard() {
+        confirmButton.setEnabled(false);
+    }
+
+    public void disableAllActions() {
+        confirmButton.setEnabled(false);
+        playButton.setEnabled(false);
+    }
+
+    public List<Card> getSelectedCards() {
+        return new ArrayList<>(selectedForDiscard);
+    }
+
+    public void displayCrib(List<Card> crib) {
+        cribPanel.removeAll();
+        for (Card card : crib) {
+            cribPanel.add(new JLabel(card.toString()));
+        }
+        revalidate();
+        repaint();
+    }
+
+    public void showPlayedCard(String name, Card card, int total) {
+        playArea.add(new JLabel("▶️ " + name + " played " + card + " (Total: " + total + ")"));
+        revalidate();
+        repaint();
+    }
+
+    public void promptNextRound() {
+        int choice = JOptionPane.showConfirmDialog(
+            this,
+            "Start next round?",
+            "Next Round",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (choice == JOptionPane.YES_OPTION && controller != null) {
+            controller.nextRound();
         }
     }
 
-    // Update the player's hand in the view
-    private void updatePlayerHand(Hand hand) {
-        playerPanel.removeAll();  // Clear previous hand
-        List<Card> cards = hand.getCards();
-        for (Card card : cards) {
-            JLabel cardLabel = new JLabel(new ImageIcon(getClass().getResource("/cards_images/" + card.toString() + ".png")));
-            playerPanel.add(cardLabel);
-        }
-        playerPanel.revalidate();
-        playerPanel.repaint();
-    }
-
-    // Update the opponent's hand in the view
-    private void updateOpponentHand(Hand hand) {
-        opponentPanel.removeAll();  // Clear previous hand
-        List<Card> cards = hand.getCards();
-        for (Card card : cards) {
-            JLabel cardLabel = new JLabel(new ImageIcon(getClass().getResource("/cards_images/" + card.toString() + ".png")));
-            opponentPanel.add(cardLabel);
-        }
-        opponentPanel.revalidate();
-        opponentPanel.repaint();
-    }
-
-    // Update the crib in the view
-    private void updateCrib() {
-        // Once we start getting the rest of the implementation going,
-    	// this will need to update to a view of the current crib. 
-    }
-
-    // Update the scores on the UI
-    private void updateScores(int playerScore, int opponentScore) {
-        playerScoreLabel.setText("Player Score: " + playerScore);
-        opponentScoreLabel.setText("Opponent Score: " + opponentScore);
-    }
-
-    // Handle discard action (when the player discards cards to the crib)
-    private void handleDiscard() {
-        // Send discard action to the controller
-        controller.discardSelectedCards();
-    }
-
-    // Handle play card action (when the player plays a card to the pile)
-    private void handlePlayCard() {
-        // Send play card action to the controller
-        controller.playCardSelected();
-    }
-
-    // Method to show the network status (if playing over the network)
-    public void networkStatus(String status) {
-        // Optionally display network-related information (e.g., "Waiting for opponent")
-        JOptionPane.showMessageDialog(this, status, "Network Status", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    // Main method to launch the viewer (for testing purposes)
-    public static void main(String[] args) {
-        GameView gameView = new GameView();
-        gameView.setVisible(true);
-    }
-
-    // Method to start the game against the computer
-    private void startGameAgainstComputer() {
-        // Remove mode selection and initialize the game components
-        initializeGameComponents();
-        
-        // Optionally, update the UI to show the opponent is the computer
-        updateOpponentLabel("Computer");
-    }
-
-    // Method to start the game over the network
-    private void startGameOverNetwork() {
-        // Show a dialog to ask whether the user wants to host or join a game
-        int option = JOptionPane.showOptionDialog(this,
-            "Do you want to host a game or join an existing one?",
-            "Network Game",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.INFORMATION_MESSAGE,
-            null,
-            new String[]{"Host Game", "Join Game"},
-            "Host Game");
-
-        if (option == 0) {
-            // Host the game
-            controller.startServer();
-        } else {
-            // Join the game (ask for IP address)
-            String ip = JOptionPane.showInputDialog(this, "Enter IP address of the host:");
-            controller.connectToServer(ip);
-        }
-
-        // Remove mode selection and initialize the game components
-        initializeGameComponents();
-
-        // Optionally, update the UI to show the opponent is a network player
-        updateOpponentLabel("Network Player");
-    }
-
-    // Update opponent label for the UI
-    private void updateOpponentLabel(String opponentType) {
-        opponentScoreLabel.setText(opponentType + " Score: 0");
-    }
 }
-*/

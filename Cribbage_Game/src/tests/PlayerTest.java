@@ -6,12 +6,12 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
-import Player.HumanPlayer;
-import Player.Player;
 import model.Card;
 import model.Deck;
 import model.Rank;
 import model.Suit;
+import player.HumanPlayer;
+import player.Player;
 
 class PlayerTest {
 

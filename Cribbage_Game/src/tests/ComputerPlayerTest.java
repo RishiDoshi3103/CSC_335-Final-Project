@@ -7,9 +7,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import Player.ComputerPlayer;
 import model.Card;
 import model.Hand;
+import player.ComputerPlayer;
 
 /**
  * Unit tests for the ComputerPlayer class.
@@ -20,7 +20,7 @@ public class ComputerPlayerTest {
      * A dummy discard strategy used for testing.
      * This strategy always selects the first two cards in the hand.
      */
-    private class DummyStrategy implements strategy.DiscardStrategy {
+    private class DummyStrategy implements strategy.Strategy {
         public List<Card> lastDiscarded = null;
 
         @Override

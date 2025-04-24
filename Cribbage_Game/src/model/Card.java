@@ -1,136 +1,55 @@
 package model;
 
-import java.util.HashMap;
-
-/**
- * The Card class represents a playing card with a rank and a suit.
- * It provides methods to access its properties and compute values needed for Cribbage scoring.
- */
 public class Card {
-	private final Suit suit;
-	private final Rank rank;
-	private static final HashMap<String, Card> pool = new HashMap<>();
-	
-	private Card(Suit suit, Rank rank) {
-		this.suit = suit;
-		this.rank = rank;
-	}
-	
-	static {
-		for (Suit suit : Suit.values() ) {
-			for (Rank rank : Rank.values() ) {
-				String key = suit + ":" + rank;
-				if (!pool.containsKey(key)) {
-					pool.put(key, new Card(suit, rank));
-				}
-			}
-		}
-	}
-	
-	public static Card get(Suit suit, Rank rank) {
-		assert suit != null && rank != null;
-		return pool.get(suit+":"+rank);
-	}
-	
-	public Suit getSuit() {
-		return suit;
-	}
-	
-	public Rank getRank() {
-		return rank;
-	}
-	
-	@Override
-	public String toString() {
-		String symbol;
-		if (suit.equals(Suit.SPADES)) {
-			symbol = "\u2660";
-		}
-		else if (suit.equals(Suit.HEARTS)) {
-			symbol = "\u2665";
-		}
-		else if (suit.equals(Suit.DIAMONDS)) {
-			symbol = "\u2666";
-		}
-		else {
-			symbol = "\u2663";
-		}
-		return rank+symbol;
-	}
-}
-	/**
-    private String suit;
-    private String rank;
+    private final Rank rank;
+    private final Suit suit;
 
-    **
-     * Constructs a new Card with the specified rank and suit.
-     *
-     * @param rank the rank of the card (e.g., "A", "2", ..., "K")
-     * @param suit the suit of the card (e.g., "Hearts", "Spades")
-     *
-    public Card(String rank, String suit) {
+    public Card(Rank rank, Suit suit) {
         this.rank = rank;
         this.suit = suit;
     }
 
-    **
-     * Returns the rank of the card.
-     *
-     * @return the rank as a String
-     *
-    public String getRank() {
+    public Rank getRank() {
         return rank;
     }
 
-    **
-     * Returns the suit of the card.
-     *
-     * @return the suit as a String
-     *
-    public String getSuit() {
+    public Suit getSuit() {
         return suit;
     }
 
-    **
-     * Returns the cribbage value of the card.
-     * For cribbage, Ace is 1; cards 2–10 are their face value; face cards count as 10.
-     *
-     * @return the cribbage value of the card
-     *
-    public int getCribbageValue() {
-        switch(rank) {
-            case "A": return 1;
-            case "J":
-            case "Q":
-            case "K": return 10;
-            default: return Integer.parseInt(rank);
-        }
-    }
-
-    **
-     * Returns the numeric rank value for evaluating runs.
-     * Ace is 1; 2–10 are their face values; Jack is 11; Queen is 12; King is 13.
-     *
-     * @return the numeric rank value
-     *
-    public int getRankValue() {
-        switch(rank) {
-            case "A": return 1;
-            case "J": return 11;
-            case "Q": return 12;
-            case "K": return 13;
-            default: return Integer.parseInt(rank);
-        }
-    }
-
-    **
-     * Returns a string representation of the card.
-     *
-     * @return a string in the format "rank of suit"
-     *
     @Override
     public String toString() {
-        return rank + " of " + suit;
+        return rank.getLabel() + suit.getSymbol();
     }
-    */
 
+    public static Card fromString(String text) {
+        if (text.length() < 2) return null;
+
+        String rankLabel = text.substring(0, text.length() - 1);
+        String suitSymbol = text.substring(text.length() - 1);
+
+        Rank rank = null;
+        Suit suit = null;
+
+        for (Rank r : Rank.values()) {
+            if (r.getLabel().equals(rankLabel)) {
+                rank = r;
+                break;
+            }
+        }
+
+        for (Suit s : Suit.values()) {
+            if (s.getSymbol().equals(suitSymbol)) {
+                suit = s;
+                break;
+            }
+        }
+
+        if (rank != null && suit != null) {
+            return new Card(rank, suit);
+        }
+
+        return null;
+    }
+
+}

@@ -3,10 +3,10 @@ package tests;
 import java.util.ArrayList;
 import java.util.List;
 
-import Player.ComputerPlayer;
-import Player.HumanPlayer;
 import model.Card;
 import model.Hand;
+import player.ComputerPlayer;
+import player.HumanPlayer;
 
 /**
  * AllTestsConsole runs a series of manual tests for the core classes
@@ -97,7 +97,7 @@ public class AllTestsConsole {
      * A dummy discard strategy for testing purposes.
      * This strategy simply selects the first two cards from the hand.
      */
-    static class DummyStrategy implements strategy.DiscardStrategy {
+    static class DummyStrategy implements strategy.Strategy {
         public List<Card> lastDiscarded = null;
 
         @Override
