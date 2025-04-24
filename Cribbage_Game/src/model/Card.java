@@ -1,12 +1,13 @@
 package model;
 
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
  * The Card class represents a playing card with a rank and a suit.
  * It provides methods to access its properties and compute values needed for Cribbage scoring.
  */
-public class Card {
+public class Card implements Comparator {
 	private final Suit suit;
 	private final Rank rank;
 	private static final HashMap<String, Card> pool = new HashMap<>();
@@ -56,6 +57,21 @@ public class Card {
 			symbol = "\u2663";
 		}
 		return rank+symbol;
+	}
+
+	@Override
+	public int compare(Object o1, Object o2) {
+		if (o1 == o2) {
+			return 0;
+		}
+		if (o1 instanceof Card) {
+			if (o2 instanceof Card) {
+				if (((Card) o1).getRank().equals(((Card) o2).getRank())) {
+					return 0;
+				}
+			}
+		}
+		return 0;
 	}
 }
 	/**
