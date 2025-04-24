@@ -3,7 +3,7 @@ package main;
 import controller.GameController;
 import model.Game;
 import ui.GameStarter;
-import ui.TextViewer;
+import ui.GuiViewer;
 
 public class Main {
 	public static void main(String[] args) {
@@ -19,7 +19,7 @@ public class Main {
 		else {
 			model = new Game("Player1", "Player2", 2);
 		}
-		TextViewer view = new TextViewer();
+		GuiViewer view = new GuiViewer();
 		GameController controller = new GameController(model, view);
 		controller.playCribbage();
 	}
