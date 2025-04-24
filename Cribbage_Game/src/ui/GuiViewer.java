@@ -4,12 +4,13 @@ import Player.Player;
 import Player.HumanPlayer;
 import Player.ComputerPlayer;
 import model.Card;
+import observer.Observer;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class GuiViewer {
+public class GuiViewer extends JLabel implements Observer {
 	private JFrame frame;
 	private JTextArea log;
 	private JPanel cardPanel;
@@ -163,12 +164,16 @@ public class GuiViewer {
 				notifyAll();
 			}
 		});
+
 		no.addActionListener(e -> {
 			selectedIndex = 0;
 			synchronized (this) {
 				waitingForInput = false;
 				notifyAll();
 			}
+			// Exit the game if user selects No
+			SwingUtilities.getWindowAncestor(cardPanel).dispose(); // Closes window
+			System.exit(0); // Ends application
 		});
 
 		cardPanel.add(new JLabel("Play again?"));
@@ -185,6 +190,9 @@ public class GuiViewer {
 		log.append(message + "\n");
 		log.setCaretPosition(log.getDocument().getLength()); // auto-scroll
 	}
+
+	@Override
+	public void update(String message) {
+		logMessage(message + "\n");
+	}
 }
-
-

@@ -34,21 +34,21 @@ public class Game {
 	 * @param name2 Name of Second Player 
 	 */
 	public Game(String name1, String name2, int numComputers) {
-		deck = new Deck();
-		if (numComputers < 1) {
-			player1 = new HumanPlayer("Player 1");
-			player2 = new HumanPlayer("Player 2");
-		}
-		else if (numComputers < 2) {
-			player1 = new HumanPlayer("Player 1");
-			player2 = new ComputerPlayer("Player 2", GameStarter.getStrat("Player 2"));
-		}
-		else {
-			player1 = new ComputerPlayer("Player 1", GameStarter.getStrat("Player 1"));
-			player2 = new ComputerPlayer("Player 2", GameStarter.getStrat("Player 2"));
-		}
-		crib = new ArrayList<Card>();
-		sequenceCards = new ArrayList<Card>();
+	    deck = new Deck();
+	    if (numComputers < 1) {
+	        player1 = new HumanPlayer(name1);
+	        player2 = new HumanPlayer(name2);
+	    }
+	    else if (numComputers < 2) {
+	        player1 = new HumanPlayer(name1);
+	        player2 = new ComputerPlayer(name2, GameStarter.getStrat(name2));
+	    }
+	    else {
+	        player1 = new ComputerPlayer(name1, GameStarter.getStrat(name1));
+	        player2 = new ComputerPlayer(name2, GameStarter.getStrat(name2));
+	    }
+	    crib = new ArrayList<Card>();
+	    sequenceCards = new ArrayList<Card>();
 	}
 	
 	/**
