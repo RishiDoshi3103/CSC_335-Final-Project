@@ -15,4 +15,62 @@ public enum Rank {
 	public int getValue() {
 		return cribVal;
 	}
+	
+	// Return 1 if other is sequential and greater,
+	// -1 if other is sequential and less,
+	// 0 if ranks are not sequential.
+	public int isSequential(Rank other) {
+		if (this.cribVal < 9) {
+			if (this.cribVal == other.getValue() - 1) {
+				return 1;
+			}
+			if (this.cribVal == other.getValue() + 1) {
+				return -1;
+			}
+			return 0;
+		}
+		if (this.equals(NINE)) {
+			if (other.equals(EIGHT)) {
+				return -1;
+			}
+			if (other.equals(TEN)) {
+				return 1;
+			}
+			return 0;
+		}
+		if (this.equals(TEN)) {
+			if (other.equals(NINE)) {
+				return -1;
+			}
+			if (other.equals(JACK)) {
+				return 1;
+			}
+			return 0;
+		}
+		if (this.equals(JACK)) {
+			if (other.equals(TEN)) {
+				return -1;
+			}
+			if (other.equals(QUEEN)) {
+				return 1;
+			}
+			return 0;
+		}
+		if (this.equals(QUEEN)) {
+			if (other.equals(JACK)) {
+				return -1;
+			}
+			if (other.equals(KING)) {
+				return 1;
+			}
+			return 0;
+		}
+		if (this.equals(KING)) {
+			if (other.equals(QUEEN)) {
+				return -1;
+			}
+			return 0;
+		}
+		return 0;
+	}
 }

@@ -3,6 +3,8 @@ package ui;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import Player.ComputerPlayer;
+import Player.HumanPlayer;
 import Player.Player;
 import model.Card;
 import model.Game;
@@ -17,22 +19,27 @@ public class TextViewer {
 		}
 	}
 	
-	public int discard(Player player) {
-		while (true) {
-			System.out.print(player.getName() + " - choose card to discard: ");
-			if (scanner.hasNextInt()) {
-				int selection = scanner.nextInt();
-				if (selection >= 1 && selection <= player.getHand().size()) {
-					return selection;
-				}
+	public int discard(Player player, boolean dealer) {
+		if (player instanceof HumanPlayer) {
+			while (true) {
+				System.out.print(player.getName() + " - choose card to discard: ");
+				if (scanner.hasNextInt()) {
+					int selection = scanner.nextInt();
+					if (selection >= 1 && selection <= player.getHand().size()) {
+						return selection;
+					}
+					else {
+						System.out.println("Invalid - Please select a valid card number.");
+					}
+				} 
 				else {
-					System.out.println("Invalid - Please select a valid card number.");
-				}
-			} 
-			else {
-				System.out.println("\"Invalid - Please select a valid card number.");
-				scanner.next();
-			} 
+					System.out.println("\"Invalid - Please select a valid card number.");
+					scanner.next();
+				} 
+			}
+		}
+		else {
+			return ((ComputerPlayer)player).discardIndex(dealer);
 		}
 	}
 	
@@ -48,7 +55,7 @@ public class TextViewer {
 		System.out.println("Play Stack Total: " + val);
 	}
 	
-	public int playCard(Player player, int total) {
+	public int playCard(Player player, int total, ArrayList<Card> sequence, int stackSum) {
 		ArrayList<Card> cards = player.getHand();
 		
 		System.out.print(player.getName() + "'s Turn - Play a card:");
@@ -64,19 +71,24 @@ public class TextViewer {
 			return -1;
 		}
 		
-		while (true) {
-			int selection = scanner.nextInt();
-			
-			if (selection >= 1 && selection <= cards.size()) {
-				Card card = cards.get(selection - 1);
-				if (card.getRank().getValue() + total <= 31) {
-					return selection;
+		if (player instanceof HumanPlayer) {
+			while (true) {
+				int selection = scanner.nextInt();
+				
+				if (selection >= 1 && selection <= cards.size()) {
+					Card card = cards.get(selection - 1);
+					if (card.getRank().getValue() + total <= 31) {
+						return selection;
+					} else {
+						System.out.println(card.toString() + " exceeds 31, choose a different card.");
+					}
 				} else {
-					System.out.println(card.toString() + " exceeds 31, choose a different card.");
+					System.out.println("Invalid input.");
 				}
-			} else {
-				System.out.println("Invalid input.");
 			}
+		}
+		else {
+			return ((ComputerPlayer) player).getPlayIndex(sequence, stackSum);
 		}
 	}
 	

@@ -95,8 +95,8 @@ public class GameController {
 			model.startRound();
 			System.out.println("--- Starting Round ---");
 			
-			promptDiscard(model.getPlayer1());
-			promptDiscard(model.getPlayer2());
+			promptDiscard(model.getPlayer1(), model.getDealer()==model.getPlayer1());
+			promptDiscard(model.getPlayer2(), model.getDealer()==model.getPlayer2());
 			
 			view.showCrib(model.showCrib());
 			
@@ -117,10 +117,10 @@ public class GameController {
 	 * 
 	 * @param player Desired player to discard
 	 */
-	private void promptDiscard(Player player) {
+	private void promptDiscard(Player player, Boolean dealer) {
 		for (int i=0; i < 2; i++) {
 			view.showHand(player);
-			int choice = view.discard(player);
+			int choice = view.discard(player, dealer);
 			Card card = model.cribCard(player.discard(choice - 1));
 			System.out.println(player.getName() + " added " + card + " to crib.");
 		}
@@ -200,7 +200,7 @@ public class GameController {
 		    	} else if (model.handCheck(activeTurn)) {
 		    		view.showHand(activeTurn);
 		    		view.showPlayTotal(model.pointTotal());
-		    		int choice = view.playCard(activeTurn, model.pointTotal());
+		    		int choice = view.playCard(activeTurn, model.pointTotal(), model.getSequence(), model.getTotal());
 		    		Card card = activeTurn.discard(choice - 1);
 		    		model.addToTotal(card.getRank().getValue());
 		    		model.addToSequence(card); // Sequence Scoring
