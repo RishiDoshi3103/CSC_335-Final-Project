@@ -27,11 +27,13 @@ public class ComputerPlayer extends Player {
      */
     public ComputerPlayer(String name, int strategy) {
         super(name);
-        if (strategy == 0) {
+        if (strategy == 1) {
+        	System.out.println("Initializing easy strategy");
         	this.discardStrategy = new EasyDiscard();
         	this.strategy = new EasyStrategy();
         }
         else {
+        	System.out.println("Initializing hard strategy");
         	this.discardStrategy = new HardDiscard();
         	this.strategy = new HardStrategy();
         }
@@ -49,7 +51,7 @@ public class ComputerPlayer extends Player {
     }
     
     public int getPlayIndex(ArrayList<Card> sequence, int total) {
-    	return strategy.playIndex(this.hand, sequence, total);
+    	return strategy.playIndex(this.hand, sequence, total) + 1;
     }
 
     /**

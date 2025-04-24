@@ -13,13 +13,14 @@ public class GameStarter {
 			System.out.println("Enter 2 for Human vs. Computer");
 			System.out.println("Enter 3 for Computer vs. Computer");
 			if (scanner.hasNextInt()) {
-				if (scanner.nextInt() == 1) {
+				int selection = scanner.nextInt();
+				if (selection == 1) {
 					return 1;
 				}
-				else if (scanner.nextInt() == 2) {
+				else if (selection == 2) {
 					return 2;
 				}
-				else if (scanner.nextInt() == 3) {
+				else if (selection == 3) {
 					return 3;
 				}
 			}
@@ -34,10 +35,11 @@ public class GameStarter {
 			System.out.println("Enter 1 for Easy Mode");
 			System.out.println("Enter 2 for Hard Mode");
 			if (scanner.hasNextInt()) {
-				if (scanner.nextInt() == 1) {
+				int selection = scanner.nextInt();
+				if (selection == 1) {
 					return 1;
 				}
-				else if (scanner.nextInt() == 2) {
+				else if (selection == 2) {
 					return 2;
 				}
 			}

@@ -75,16 +75,50 @@ public class HardStrategy implements Strategy {
 	 */
 	@Override
 	public int playIndex(ArrayList<Card> hand, ArrayList<Card> sequence, int total) {
-		// TODO IF stack is empty
-		//						IF have a 4
-		//							play 4
-		//						IF have a double match
-		//							play one of them
-		//						DO NOT LEAD WITH ACE, TWO, FIVE
-		
+		// IF Stack is empty
+		if (sequence.size() == 0) {
+			//	IF have a 4
+			//		play 4
+			//	IF have a double match
+			//		play one of them
+			//	DO NOT LEAD WITH ACE, TWO, FIVE
+			for (int i = 0; i < hand.size(); i++) {
+				if (hand.get(i).getRank().equals(Rank.FOUR)) {
+					return i;
+				}
+			}
+			for (int i = 0; i < hand.size(); i++) {
+				for (int j = 0; j < hand.size(); j++) {
+					if (i != j) {
+						if (hand.get(i).getRank().equals(hand.get(j).getRank())) {
+							if (!hand.get(i).getRank().equals(Rank.ACE)
+									&& !hand.get(i).getRank().equals(Rank.TWO)
+									&& !hand.get(i).getRank().equals(Rank.FIVE))
+							return i;
+						}
+					}
+				}
+			}
+			for (int i = 0; i < hand.size(); i++) {
+				if (!hand.get(i).getRank().equals(Rank.ACE)
+						&& !hand.get(i).getRank().equals(Rank.TWO)
+						&& !hand.get(i).getRank().equals(Rank.FIVE))
+				return i;
+			}
+			for (int i = 0; i < hand.size(); i++) {
+				if (!hand.get(i).getRank().equals(Rank.ACE)
+						&& !hand.get(i).getRank().equals(Rank.FIVE))
+				return i;
+			}
+			for (int i = 0; i < hand.size(); i++) {
+				if (!hand.get(i).getRank().equals(Rank.FIVE))
+				return i;
+			}
+			return 0;
+		}
 		//	IF last 2 cards played were matching && have another matching card && total < 31
 		//		play matching card
-		if (sequence.get(sequence.size() - 1).getRank().equals(sequence.get(sequence.size() - 2).getRank())) {
+		if (sequence.size() >= 2 && sequence.get(sequence.size() - 1).getRank().equals(sequence.get(sequence.size() - 2).getRank())) {
 			for (int i = 0; i < hand.size(); i++) {
 				if (hand.get(i).getRank().equals(sequence.get(sequence.size() - 1).getRank())
 						&& hand.get(i).getRank().getValue() + total <= 31) {
