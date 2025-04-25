@@ -1,14 +1,16 @@
 package Player;
 
 /**
- * The HumanPlayer class represents a player controlled by a human.
- * It extends the abstract Player class and implements the methods for playing a turn
- * and discarding cards. In a GUI application, these methods would be connected to user inputs.
+ * The HumanPlayer class represents a player controlled by a human user.
+ * This class extends the abstract Player class and defines behavior for
+ * human-based interaction during gameplay.
+ *
+ * In a GUI-based implementation, these methods would be tied to user input.
  */
 public class HumanPlayer extends Player {
 
     /**
-     * Constructs a new HumanPlayer with the specified name.
+     * Constructs a new HumanPlayer with the given name.
      *
      * @param name the name of the human player
      */
@@ -17,8 +19,8 @@ public class HumanPlayer extends Player {
     }
 
     /**
-     * Simulates the human player's turn.
-     * In a GUI-based application, this method would trigger actions based on user interaction.
+     * Represents the human player taking a turn.
+     * This method is expected to be triggered by GUI events.
      */
     @Override
     public void playTurn() {
@@ -27,8 +29,8 @@ public class HumanPlayer extends Player {
     }
 
     /**
-     * Simulates the human player's discard action.
-     * In a GUI-based application, this method would allow the user to select cards to discard.
+     * Represents the discard phase for a human player.
+     * Typically connected to user input in a graphical interface.
      */
     @Override
     public void discardCards() {

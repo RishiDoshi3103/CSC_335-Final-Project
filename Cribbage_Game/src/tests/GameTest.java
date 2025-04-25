@@ -17,7 +17,7 @@ import ui.TextViewer;
 class GameTest {
 	@Test
 	void testBaseGameStates() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		model.startRound();
 		assertEquals(model.getDealer(), model.getPlayer1());
@@ -66,7 +66,7 @@ class GameTest {
 	
 	@Test
 	void testGameSequenceScoring() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		assertEquals(model.checkPairs(), 0);
 		assertEquals(model.checkRuns(), 0);
@@ -89,6 +89,8 @@ class GameTest {
 		assertEquals(model.checkPairs(), 12);
 		assertEquals(model.checkRuns(), 0);
 		
+		assertEquals(model.getSequence().get(0), card1);
+		
 		model.resetSequence();
 		
 		Card card5 = Card.get(Suit.DIAMONDS, Rank.TEN);
@@ -108,7 +110,7 @@ class GameTest {
 	
 	@Test
 	void testGameHandChecking() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		model.startRound();
 		
@@ -117,12 +119,13 @@ class GameTest {
 		
 		model.addToTotal(31);
 		assertFalse(model.handCheck(model.getPlayer1()));
+		assertEquals(model.getTotal(), 31);
 
 	}
 	
 	@Test
 	void testDefaultGameHandScoring() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		ArrayList<Card> cards = new ArrayList<Card>();
 		assertEquals(model.score15(cards), 0);
@@ -155,7 +158,7 @@ class GameTest {
 	
 	@Test
 	void testGameScore15AndHand() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2",0 );
 		
 		ArrayList<Card> cards = new ArrayList<Card>();
 		Card card1 = Card.get(Suit.DIAMONDS, Rank.JACK);
@@ -188,7 +191,7 @@ class GameTest {
 	
 	@Test
 	void testGameScorePairs() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		ArrayList<Card> cards = new ArrayList<Card>();
 		Card card1 = Card.get(Suit.DIAMONDS, Rank.JACK);
@@ -212,7 +215,7 @@ class GameTest {
 	
 	@Test
 	void testGameScoreRuns() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		ArrayList<Card> cards = new ArrayList<Card>();
 		Card card1 = Card.get(Suit.DIAMONDS, Rank.ACE);
@@ -238,7 +241,7 @@ class GameTest {
 	
 	@Test
 	void testGameScoreFlush() {
-		 Game model = new Game("test1", "test2");
+		 Game model = new Game("test1", "test2", 0);
 			
 		ArrayList<Card> cards = new ArrayList<Card>();
 		Card card1 = Card.get(Suit.SPADES, Rank.JACK);
@@ -270,7 +273,7 @@ class GameTest {
 	
 	@Test
 	void testTwistingTheNob() {
-		Game model = new Game("test1", "test2");
+		Game model = new Game("test1", "test2", 0);
 		
 		ArrayList<Card> cards = new ArrayList<Card>();
 		Card card1 = Card.get(Suit.DIAMONDS, Rank.JACK);

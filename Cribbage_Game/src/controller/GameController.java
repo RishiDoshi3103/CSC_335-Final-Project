@@ -1,9 +1,15 @@
 package controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import Player.Player;
 import model.Card;
 import model.Game;
 import model.Rank;
+import observer.Observer;
+import observer.Subject;
+import ui.GuiViewer;
 import ui.TextViewer;
 
 /**
@@ -50,9 +56,11 @@ import ui.TextViewer;
  */
 
 
-public class GameController {
+public class GameController implements Subject {
 	private Game model;
-	private TextViewer view;
+	private GuiViewer view;
+	
+	private final List<Observer> observers = new ArrayList<>();
 	
 	/** 
 	 * Each instance of the game requires a Game model - which contains
@@ -63,7 +71,7 @@ public class GameController {
 	 * @param model Game Object
 	 * @param view  Requisite Viewer
 	 */
-	public GameController(Game model, TextViewer view) {
+	public GameController(Game model, GuiViewer view) {
 		this.model = model;
 		this.view = view;
 	}
@@ -93,21 +101,21 @@ public class GameController {
 	public void startGame() {
 		while (!model.gameOver()) {
 			model.startRound();
-			System.out.println("--- Starting Round ---");
+			notifyObservers("-- Starting Round -- ");
 			
 			promptDiscard(model.getPlayer1(), model.getDealer()==model.getPlayer1());
 			promptDiscard(model.getPlayer2(), model.getDealer()==model.getPlayer2());
 			
 			view.showCrib(model.showCrib());
 			
-			System.out.println("--- Starter Card ---");
+			notifyObservers("--- Starter Card ---");
 			starterCard();
 			
-			System.out.println("--- Play Phase ---");
+			notifyObservers("--- Play Phase ---");
 			playPhase();
 			
-			System.out.println(model.getPlayer1().getName() + " Score: " + model.getPlayer1().getScore());
-			System.out.println(model.getPlayer2().getName() + " Score: " + model.getPlayer2().getScore());
+			notifyObservers(model.getPlayer1().getName() + " Score: " + model.getPlayer1().getScore());
+			notifyObservers(model.getPlayer2().getName() + " Score: " + model.getPlayer2().getScore());
 		}
 	}
 	
@@ -122,7 +130,7 @@ public class GameController {
 			view.showHand(player);
 			int choice = view.discard(player, dealer);
 			Card card = model.cribCard(player.discard(choice - 1));
-			System.out.println(player.getName() + " added " + card + " to crib.");
+			notifyObservers(player.getName() + " added " + card + " to crib.");
 		}
 	}
 	
@@ -133,10 +141,10 @@ public class GameController {
 	 */
 	private void starterCard() {
 		Card starter = model.drawStarter();
-		System.out.println("Starter Card: " + starter.toString());
+		notifyObservers("Starter Card: " + starter.toString());
 		if (starter.getRank().equals(Rank.JACK)) {
-			System.out.println("Dealer: " + model.getDealer().getName() + ", +2 points.");
-			System.out.println(model.getDealer().getName() + " total: " + model.getDealer().getScore());
+			notifyObservers("Dealer: " + model.getDealer().getName() + ", +2 points.");
+			notifyObservers(model.getDealer().getName() + " total: " + model.getDealer().getScore());
 		}
 	}
 	
@@ -191,7 +199,7 @@ public class GameController {
 		    	// Check if both players can't play (Go-Go situation)
 		    	if (!model.handCheck(activeTurn) && !model.handCheck(opponent)) {
 		    	    if (lastPlayerToPlay != null) {
-		    	        System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
+		    	    	notifyObservers(lastPlayerToPlay.getName() + " gets 1 point for last card.");
 		    	        lastPlayerToPlay.addPoints(1);
 		    	    }
 		    	    model.resetTotal();
@@ -207,34 +215,34 @@ public class GameController {
 		    		activeTurn.addToPlayed(card); // Hand scoring at end
 		    		lastPlayerToPlay = activeTurn;
 		    		
-		    		System.out.println(activeTurn.getName() + " plays " + card + " | Total: " + model.pointTotal());
+		    		notifyObservers(activeTurn.getName() + " plays " + card + " | Total: " + model.pointTotal());
 		    		
 		    		int pairScore = model.checkPairs();
 		    		if (pairScore > 0) {
-		    			System.out.println(activeTurn.getName() + " scored " + pairScore + " from pairs!");
+		    			notifyObservers(activeTurn.getName() + " scored " + pairScore + " from pairs!");
 		    			activeTurn.addPoints(pairScore);
 		    		}
 		    		int runScore = model.checkRuns();
 		    		if (runScore > 0) {
-		    			System.out.println(activeTurn.getName() + " scored " + runScore + " from a run!");
+		    			notifyObservers(activeTurn.getName() + " scored " + runScore + " from a run!");
 		    			activeTurn.addPoints(runScore);
 		    		}
 		    		
 		    		if (model.pointTotal() == 15) {
-		    			System.out.println("15! " + activeTurn.getName() + " gets 1 point.");
+		    			notifyObservers("15! " + activeTurn.getName() + " gets 1 point.");
 		    		}
 		    		
 		    		if (model.pointTotal() == 31) {
-		    			System.out.println("31 Reached! " + activeTurn.getName() + " gets 2 points.");
+		    			notifyObservers("31 Reached! " + activeTurn.getName() + " gets 2 points.");
 		    			activeTurn.addPoints(2);
 		    			model.resetTotal();
 		    			model.resetSequence();
 		    		}
 		    	} else {
 		    		if (!activeTurn.getHand().isEmpty()) {
-		    			System.out.println(activeTurn.getName() + " Says Go..");
+		    			notifyObservers(activeTurn.getName() + " Says Go..");
 		    			if (!model.handCheck(opponent) && !opponent.getHand().isEmpty()) {
-		    				System.out.println(opponent.getName() + " pegs 1 for Go");
+		    				notifyObservers(opponent.getName() + " pegs 1 for Go");
 		    				opponent.addPoints(1);
 		    				model.resetTotal();
 		    				model.resetSequence();
@@ -248,23 +256,23 @@ public class GameController {
 		    }
 		    
 		    if (model.pointTotal() != 0 && model.pointTotal() < 31 && lastPlayerToPlay != null) {
-		    	System.out.println(lastPlayerToPlay.getName() + " gets 1 point for last card.");
+		    	notifyObservers(lastPlayerToPlay.getName() + " gets 1 point for last card.");
 		    	lastPlayerToPlay.addPoints(1);
 		    }
 		    
 		    int score1 = model.scoreHand(activeTurn, false);
 		    if (score1 > 0) {
-		    	System.out.println(activeTurn.getName() + " scored " + score1 + " from show!");
+		    	notifyObservers(activeTurn.getName() + " scored " + score1 + " from show!");
 		    	activeTurn.addPoints(score1);
 		    }
 		    int score2 = model.scoreHand(opponent, false);
 		    if (score2 > 0) {
-		    	System.out.println(opponent.getName() + " scored " + score2 + " from show!");
+		    	notifyObservers(opponent.getName() + " scored " + score2 + " from show!");
 		    	opponent.addPoints(score2);
 		    }
 		    int scoreCrib = model.scoreHand(model.getDealer(), true);
 		    if (scoreCrib > 0) {
-		    	System.out.println("(Dealer) " + model.getDealer().getName() + " scored " + scoreCrib + " from show!");
+		    	notifyObservers("(Dealer) " + model.getDealer().getName() + " scored " + scoreCrib + " from show!");
 		    	model.getDealer().addPoints(scoreCrib);
 		    }
 	}
@@ -286,34 +294,49 @@ public class GameController {
 			startGame();
 			
 			if (model.getPlayer1().getScore() >= 61 && model.getPlayer2().getScore() < 61) {
-				System.out.println(model.getPlayer1().getName() + " wins!");
+				notifyObservers(model.getPlayer1().getName() + " wins!");
 				model.getPlayer1().recordWin();
 				model.getPlayer2().recordLoss();
 			}
 			else if (model.getPlayer2().getScore() >= 61 && model.getPlayer1().getScore() < 61) {
-				System.out.println(model.getPlayer2().getName() + "wins!");
+				notifyObservers(model.getPlayer2().getName() + "wins!");
 				model.getPlayer1().recordLoss();
 				model.getPlayer2().recordWin();
 			}
 			else if (model.getPlayer1().getScore() > model.getPlayer2().getScore()){
-				System.out.println(model.getPlayer1().getName() + " wins!");
+				notifyObservers(model.getPlayer1().getName() + " wins!");
 				model.getPlayer1().recordWin();
 				model.getPlayer2().recordLoss();
 			}
 			else if (model.getPlayer2().getScore() > model.getPlayer1().getScore()) {
-				System.out.println(model.getPlayer2().getName() + "wins!");
+				notifyObservers(model.getPlayer2().getName() + "wins!");
 				model.getPlayer1().recordLoss();
 				model.getPlayer2().recordWin();
 			}
 			else {
-				System.out.println("Tie!");
+				notifyObservers("Tie!");
 			}
-			System.out.println(model.getPlayer1().getName() + ": Wins(" + model.getPlayer1().getWins() + ") | Losses (" + model.getPlayer1().getLosses()+")");
-			System.out.println(model.getPlayer2().getName() + ": Wins(" + model.getPlayer2().getWins() + ") | Losses (" + model.getPlayer2().getLosses()+")");
+			notifyObservers(model.getPlayer1().getName() + ": Wins(" + model.getPlayer1().getWins() + ") | Losses (" + model.getPlayer1().getLosses()+")");
+			notifyObservers(model.getPlayer2().getName() + ": Wins(" + model.getPlayer2().getWins() + ") | Losses (" + model.getPlayer2().getLosses()+")");
 			playAgain = view.playAgain();
 			
 		}
 	}
-}
-		   
+	
+	@Override
+    public void registerObserver(Observer o) {
+        observers.add(o);
+    }
 
+    @Override
+    public void removeObserver(Observer o) {
+        observers.remove(o);
+    }
+
+    @Override
+    public void notifyObservers(String message) {
+        for (Observer o : observers) {
+            o.update(message);
+        }
+    }
+}
