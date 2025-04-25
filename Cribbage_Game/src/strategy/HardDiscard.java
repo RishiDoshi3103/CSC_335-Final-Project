@@ -144,7 +144,7 @@ public class HardDiscard implements DiscardStrategy {
 							return index;
 						}
 					}
-					// else discard a random card (NOT aces, 2s, or 3s)
+					// else discard a random card (NOT aces or 2s)
 					for (int index : maxSuit) {
 						if (!hand.get(index).getRank().equals(Rank.ACE)
 								&& !hand.get(index).getRank().equals(Rank.TWO)) {
@@ -188,7 +188,7 @@ public class HardDiscard implements DiscardStrategy {
 					}
 				}
 				for (int i = 0; i < pairIndices.size(); i ++) {
-					if (pairIndices.get(i).size() == 2) {
+					if (pairIndices.get(i).size() == 3) {
 						nextDiscardIndex = pairIndices.get(i).get(0);
 						if (nextDiscardIndex > pairIndices.get(i).get(1)) nextDiscardIndex--;
 						return pairIndices.get(i).get(1);
@@ -282,15 +282,15 @@ public class HardDiscard implements DiscardStrategy {
 						}
 					}
 					// If one of the five is not a 5 and doesn't match rank of current, return the index
-					for (int index : maxSuit) {
-						if (!hand.get(index).getRank().equals(Rank.FIVE) 
-								&& !hand.get(index).getRank().equals(hand.get(nextDiscardIndex).getRank())) {
-							if (nextDiscardIndex > index) {
-								nextDiscardIndex--;
-							}
-							return index;
-						}
-					}
+//					for (int index : maxSuit) {
+//						if (!hand.get(index).getRank().equals(Rank.FIVE) 
+//								&& !hand.get(index).getRank().equals(hand.get(nextDiscardIndex).getRank())) {
+//							if (nextDiscardIndex > index) {
+//								nextDiscardIndex--;
+//							}
+//							return index;
+//						}
+//					}
 					// If one of the five doesn't match rank of current, return the index
 					for (int index : maxSuit) {
 						if (!hand.get(index).getRank().equals(hand.get(nextDiscardIndex).getRank())) {
@@ -317,22 +317,25 @@ public class HardDiscard implements DiscardStrategy {
 				//	else if have (ace & queen || king) OR (2 & queen || king) 
 				//	discard ace/2 and king if possible, then queen if not
 			    //	but not two of the same kind or two in a row
+				boolean haveKing = false;
 				for (int i = 0; i < hand.size(); i++) {
 					if (hand.get(i).getRank().equals(Rank.KING)
 							&& !offLimits.contains(i)) {
 						nextDiscardIndex = i;
+						haveKing = true;
 					}
 				}
-				for (int i = 0; i < hand.size(); i++) {
-					if (!hand.get(i).getRank().equals(Rank.KING) 
-							&& !hand.get(i).getRank().equals(Rank.QUEEN)
-							&& !hand.get(i).getRank().equals(Rank.FIVE)
-							&& !offLimits.contains(i)) {
-						if (nextDiscardIndex > i) nextDiscardIndex --;
-						return i;
+				if (haveKing) {
+					for (int i = 0; i < hand.size(); i++) {
+						if (!hand.get(i).getRank().equals(Rank.KING) 
+								&& !hand.get(i).getRank().equals(Rank.QUEEN)
+								&& !hand.get(i).getRank().equals(Rank.FIVE)
+								&& !offLimits.contains(i)) {
+							if (nextDiscardIndex > i) nextDiscardIndex --;
+							return i;
+						}
 					}
 				}
-				
 				//	else if can pick a card at random that is NOT a five, NOT a pair, doesn't add to 15
 				for (int i = 0; i < hand.size(); i++) {
 					if (!offLimits.contains(i) && !hand.get(i).getRank().equals(Rank.FIVE)) {
@@ -370,18 +373,18 @@ public class HardDiscard implements DiscardStrategy {
 					}
 				}
 				//	else if can pick a card at random that doesn't add to 15
-				for (int i = 0; i < hand.size(); i++) {
-					if (hand.get(i).getRank().equals(Rank.FIVE)) {
-						nextDiscardIndex = i;
-					}
-				}
-				for (int i = 0; i < hand.size(); i++) {
-					if (i != nextDiscardIndex
-						&& hand.get(i).getRank().getValue() + hand.get(nextDiscardIndex).getRank().getValue() != 15) {
-						if (nextDiscardIndex > i) nextDiscardIndex --;
-						return i;
-					}
-				}
+//				for (int i = 0; i < hand.size(); i++) {
+//					if (hand.get(i).getRank().equals(Rank.FIVE)) {
+//						nextDiscardIndex = i;
+//					}
+//				}
+//				for (int i = 0; i < hand.size(); i++) {
+//					if (i != nextDiscardIndex
+//						&& hand.get(i).getRank().getValue() + hand.get(nextDiscardIndex).getRank().getValue() != 15) {
+//						if (nextDiscardIndex > i) nextDiscardIndex --;
+//						return i;
+//					}
+//				}
 				// else
 				nextDiscardIndex = 0;
 				return 1;
