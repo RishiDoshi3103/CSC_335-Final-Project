@@ -41,3 +41,41 @@ Cribbage/ ├── main/ │ └── Main.java # Entry point ├── contro
 ## Step 2: Run the Game
 
 ```java -jar CribbageGame.jar
+=======
+## Step 1: "*Download the Reposiortie*" or "*clone the Reposiortie from this link 'git clone https://github.com/RishiDoshi3103/CSC_335-Final-Project.git'*" 
+
+## Step 2: Run the Game
+"*java -jar CribbageGame.jar*"
+
+## 🎮 Gameplay Flow
+
+### Choose Game Mode:
+- `1`: Human vs Human  
+- `2`: Human vs Computer  
+- `3`: Computer vs Computer
+
+### Enter Player Names:
+- Prompted only for human players
+
+### Gameplay:
+- Discard cards to the crib
+- Play cards turn-by-turn
+- Scoring is automatic (handled by game logic)
+
+### Game End:
+- First player to reach **61 points** wins
+- Option to **replay** after the game ends
+
+---
+
+## 📦 Dependencies
+
+- Java SE (JDK 8 or later)
+- No external libraries required
+
+## 🙋 Authors
+
+- **Rishi Doshi**
+- **Kyle Becker**
+- **Kyle Velasco**
+- **Liam Norris**
