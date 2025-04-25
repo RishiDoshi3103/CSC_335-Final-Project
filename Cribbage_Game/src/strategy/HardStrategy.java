@@ -128,13 +128,13 @@ public class HardStrategy implements Strategy {
 		}
 		// 	IF can make >3 card sequence AND adds to 15/31
 		//		play card in sequence
-		int five = fiveSequence(hand, sequence);
+		int five = fiveSequence(hand, sequence, total);
 		if (five >= 0 && (hand.get(five).getRank().getValue() + total == 31 
 				|| hand.get(five).getRank().getValue() + total == 15 )) return five;
-		int four = fourSequence(hand, sequence);
+		int four = fourSequence(hand, sequence, total);
 		if (four >= 0 && (hand.get(four).getRank().getValue() + total == 31 
 				|| hand.get(four).getRank().getValue() + total == 15 )) return four;
-		int three = threeSequence(hand, sequence);
+		int three = threeSequence(hand, sequence, total);
 		if (three >= 0 && (hand.get(three).getRank().getValue() + total == 31 
 				|| hand.get(three).getRank().getValue() + total == 15 )) return three;
 		// 	IF can make 5 card sequence && total < 31
@@ -228,11 +228,18 @@ public class HardStrategy implements Strategy {
 	 * return index of value to play if can make a sequence of 5
 	 * return -1 if not possible
 	 */
-	private int fiveSequence(ArrayList<Card> hand, ArrayList<Card> sequence) {
+	private int fiveSequence(ArrayList<Card> hand, ArrayList<Card> sequence, int total) {
 		if (sequence.size() < 4) {
 			return -1;
 		}
 		List<Card> lastFour = sequence.subList(sequence.size() - 4, sequence.size());
+		for (int i = 0; i < hand.size(); i++) {
+			if (isSequence(lastFour, hand.get(i))
+					&& (hand.get(i).getRank().getValue() + total == 15 
+					|| hand.get(i).getRank().getValue() + total == 31)) {
+				return i;
+			}
+		}
 		for (int i = 0; i < hand.size(); i++) {
 			if (isSequence(lastFour, hand.get(i))) {
 				return i;
@@ -258,21 +265,25 @@ public class HardStrategy implements Strategy {
 		for (int i = 0; i < temp.size(); i++) {
 			if (temp.get(i).getRank().getValue() < min.getValue()) {
 				index = i;
+				min = temp.get(i).getRank();
 			}
 			if (temp.get(i).getRank().getValue() == min.getValue() && min.getValue() == 10) {
 				if (min == Rank.KING) {
 					index = i;
+					min = temp.get(i).getRank();
 				}
 				else if (min == Rank.QUEEN) {
 					if (temp.get(i).getRank() == Rank.JACK || temp.get(i).getRank() == Rank.TEN) {
 						min = temp.get(i).getRank();
 						index = i;
+						min = temp.get(i).getRank();
 					}
 				}
 				else if (min == Rank.JACK) {
 					if (temp.get(i).getRank() == Rank.TEN) {
 						min = temp.get(i).getRank();
 						index = i;
+						min = temp.get(i).getRank();
 					}
 				}
 			}
@@ -301,11 +312,18 @@ public class HardStrategy implements Strategy {
 	 * return index of value to play if can make a sequence of 4
 	 * return -1 if not possible
 	 */
-	private int fourSequence(ArrayList<Card> hand, ArrayList<Card> sequence) {
+	private int fourSequence(ArrayList<Card> hand, ArrayList<Card> sequence, int total) {
 		if (sequence.size() < 3) {
 			return -1;
 		}
 		List<Card> lastFour = sequence.subList(sequence.size() - 3, sequence.size());
+		for (int i = 0; i < hand.size(); i++) {
+			if (isSequence(lastFour, hand.get(i))
+					&& (hand.get(i).getRank().getValue() + total == 15 
+					|| hand.get(i).getRank().getValue() + total == 31)) {
+				return i;
+			}
+		}
 		for (int i = 0; i < hand.size(); i++) {
 			if (isSequence(lastFour, hand.get(i))) {
 				return i;
@@ -319,11 +337,18 @@ public class HardStrategy implements Strategy {
 	 * return index of value to play if can make a sequence of 3
 	 * return -1 if not possible
 	 */
-	private int threeSequence(ArrayList<Card> hand, ArrayList<Card> sequence) {
+	private int threeSequence(ArrayList<Card> hand, ArrayList<Card> sequence, int total) {
 		if (sequence.size() < 2) {
 			return -1;
 		}
 		List<Card> lastFour = sequence.subList(sequence.size() - 2, sequence.size());
+		for (int i = 0; i < hand.size(); i++) {
+			if (isSequence(lastFour, hand.get(i))
+					&& (hand.get(i).getRank().getValue() + total == 15 
+					|| hand.get(i).getRank().getValue() + total == 31)) {
+				return i;
+			}
+		}
 		for (int i = 0; i < hand.size(); i++) {
 			if (isSequence(lastFour, hand.get(i))) {
 				return i;
