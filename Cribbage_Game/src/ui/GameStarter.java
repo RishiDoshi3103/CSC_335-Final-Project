@@ -2,9 +2,24 @@ package ui;
 
 import java.util.Scanner;
 
+/**
+ * The GameStarter class handles initial game setup through console-based input.
+ * It allows the user to select a game mode, input player names, and assign strategies
+ * to computer players.
+ */
 public class GameStarter {
 	private Scanner scanner = new Scanner(System.in);
 
+	/**
+	 * Prompts the user to select a game mode.
+	 * 
+	 * Game modes:
+	 * 1 - Human vs. Human
+	 * 2 - Human vs. Computer
+	 * 3 - Computer vs. Computer
+	 *
+	 * @return the selected game mode (1, 2, or 3)
+	 */
 	public int GameMode() {
 		System.out.println("-- CRIBBAGE --");
 		while (true) {
@@ -22,6 +37,12 @@ public class GameStarter {
 		}
 	}
 
+	/**
+	 * Prompts the user to input player names based on the selected game mode.
+	 *
+	 * @param mode the selected game mode
+	 * @return an array containing two player names
+	 */
 	public String[] getPlayerNames(int mode) {
 		String[] names = new String[2];
 		scanner.nextLine(); // Clear buffer
@@ -42,6 +63,16 @@ public class GameStarter {
 		return names;
 	}
 
+	/**
+	 * Prompts the user to select a strategy for a computer player.
+	 * 
+	 * Strategy options:
+	 * 1 - Easy
+	 * 2 - Hard
+	 *
+	 * @param name the name of the computer player
+	 * @return the selected strategy mode (1 or 2)
+	 */
 	public static int getStrat(String name) {
 		Scanner scanner = new Scanner(System.in);
 		while (true) {
