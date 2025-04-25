@@ -102,7 +102,7 @@ public class GameController implements Subject {
 		while (!model.gameOver()) {
 			model.startRound();
 			notifyObservers("-- Starting Round -- ");
-			
+			notifyObservers("Discard two cards to be added to Crib..");
 			promptDiscard(model.getPlayer1(), model.getDealer()==model.getPlayer1());
 			promptDiscard(model.getPlayer2(), model.getDealer()==model.getPlayer2());
 			

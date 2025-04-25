@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import Player.HumanPlayer;
 import model.Card;
+import model.Rank;
+import model.Suit;
 
 
 /**
@@ -43,15 +45,22 @@ public class HumanPlayerTest {
     @Test
     public void testHandOperations() {
         HumanPlayer hp = new HumanPlayer("Charlie");
-        Card card1 = new Card("A", "Spades");
-        Card card2 = new Card("10", "Hearts");
+        Card card1 = Card.get(Suit.SPADES, Rank.ACE);
+        Card card2 = Card.get(Suit.HEARTS, Rank.TEN);
         hp.addCard(card1);
         hp.addCard(card2);
-        List<Card> handCards = hp.getHand().getCards();
+        List<Card> handCards = hp.getHand();
         assertEquals(2, handCards.size());
         assertTrue(handCards.contains(card1));
         assertTrue(handCards.contains(card2));
         hp.clearHand();
-        assertEquals(0, hp.getHand().getCards().size());
+        assertEquals(0, hp.getHand().size());
+    }
+    
+    @Test
+    public void testPrint() {
+    	HumanPlayer hp = new HumanPlayer("Debbie");
+    	hp.recordWin();
+    	assertEquals(hp.toString(), "Player: Debbie | Wins: 1 | Losses: 0");
     }
 }

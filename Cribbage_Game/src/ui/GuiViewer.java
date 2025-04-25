@@ -10,6 +10,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * This GUI viewer class was created with assistance by AI, but edited to fit
+ * our specific program requirements following the OBSERVER design pattern.
+ */
 public class GuiViewer extends JLabel implements Observer {
 	private JFrame frame;
 	private JTextArea log;

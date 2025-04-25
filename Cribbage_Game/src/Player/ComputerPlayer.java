@@ -40,30 +40,11 @@ public class ComputerPlayer extends Player {
         
     }
 
-    /**
-     * Simulates the computer player's turn.
-     * In a full implementation, this method would include AI logic to make game decisions.
-     */
-    @Override
-    public void playTurn() {
-        System.out.println(name + " (Computer) is taking its turn.");
-        // Implement computer-specific turn logic here.
-    }
     
     public int getPlayIndex(ArrayList<Card> sequence, int total) {
     	return strategy.playIndex(this.hand, sequence, total) + 1;
     }
 
-    /**
-     * Uses the assigned discard strategy to select cards to discard from the computer player's hand.
-     */
-    @Override
-    public void discardCards() {
-        System.out.println(name + " (Computer) is discarding cards using its strategy.");
-        if (discardStrategy != null) {
-            discardStrategy.selectDiscard(hand, true);
-        }
-    }
     
     /*
      * Discard a card from hand based on discardStrategy

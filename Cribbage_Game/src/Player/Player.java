@@ -3,7 +3,6 @@ package Player;
 import java.util.ArrayList;
 
 import model.Card;
-import model.Hand;
 
 /**
  * The Player abstract class represents any participant in the Cribbage game.
@@ -122,18 +121,6 @@ public abstract class Player {
     public void clearPlayed() {
     	playedCards.clear();
     }
-
-    /**
-     * Simulates the player's turn.
-     * Concrete subclasses must provide an implementation.
-     */
-    public abstract void playTurn();
-
-    /**
-     * Handles the player's discard phase.
-     * Concrete subclasses must provide an implementation.
-     */
-    public abstract void discardCards();
 
     /**
      * Records a win for the player.
