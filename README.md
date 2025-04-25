@@ -72,3 +72,6 @@ Cribbage/ ├── main/ │ └── Main.java # Entry point ├── contro
 - **Kyle Becker**
 - **Kyle Velasco**
 - **Liam Norris**
+
+## UML Diagram
+"*https://drive.google.com/file/d/1EhMiwCcwlqsRYixKCvlhVjJkIm6BrICl/view?usp=sharing*"
