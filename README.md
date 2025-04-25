@@ -36,11 +36,11 @@ Cribbage/ ├── main/ │ └── Main.java # Entry point ├── contro
 ## 🛠️ Compile and Run (Using JAR)
 
 ## Step 1: Compile
-```javac -d out $(find . -name "*.java")
+```javac -d out $(find . -name "*.java")`
 
 ## Step 2: Run the Game
 
-```java -jar CribbageGame.jar
+```java -jar CribbageGame.jar`
 =======
 ## Step 1: "*Download the Reposiortie*" or "*clone the Reposiortie from this link 'git clone https://github.com/RishiDoshi3103/CSC_335-Final-Project.git'*" 
 
