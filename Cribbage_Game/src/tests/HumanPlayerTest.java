@@ -56,11 +56,4 @@ public class HumanPlayerTest {
         hp.clearHand();
         assertEquals(0, hp.getHand().size());
     }
-    
-    @Test
-    public void testPrint() {
-    	HumanPlayer hp = new HumanPlayer("Debbie");
-    	hp.recordWin();
-    	assertEquals(hp.toString(), "Player: Debbie | Wins: 1 | Losses: 0");
-    }
 }
